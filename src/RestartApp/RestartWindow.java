@@ -4,11 +4,12 @@
  */
 package RestartApp;
 
-import java.io.File;
+import java.util.List;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Properties;
-import java.util.logging.Level;
 import javax.swing.JOptionPane;
 
 /**
@@ -26,9 +27,12 @@ public class RestartWindow extends javax.swing.JFrame {
     String username = "";
     String password = "";
     String autosave = "";
+    private List<String> projectNames = new ArrayList<>();
     public RestartWindow() {
         initComponents();
-        initFields();
+//        initFields();
+        loadProjectNames();
+      
     }
     public void initFields(){
         jTextArea1.setText("Click 'RESTART' to restart WebWorkspace.\n");
@@ -84,6 +88,8 @@ public class RestartWindow extends javax.swing.JFrame {
         jLabel5 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox<>();
         jButton6 = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        jTextField4 = new javax.swing.JTextField();
 
         jButton3.setText("Restart");
 
@@ -218,6 +224,11 @@ public class RestartWindow extends javax.swing.JFrame {
         jLabel5.setText("Jconfig path : ");
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
 
         jButton6.setText("ADD");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
@@ -226,13 +237,21 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
 
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel6.setText("Project Name :");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton4)
+                .addGap(39, 39, 39))
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel6)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -247,16 +266,14 @@ public class RestartWindow extends javax.swing.JFrame {
                         .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jCheckBox1))
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton6)))
+                        .addComponent(jButton6))
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jTextField4, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)))
                 .addContainerGap(44, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton4)
-                .addGap(39, 39, 39))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -266,6 +283,10 @@ public class RestartWindow extends javax.swing.JFrame {
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton6))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -395,11 +416,133 @@ public class RestartWindow extends javax.swing.JFrame {
 
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+    
+    /**
+     * Save project details to properties file with a project-specific prefix.
+     *
+     * @param projectName The name of the project to use as a prefix.
+     */
+    private void saveProjectDetails(String projectName) {
+        Properties p = new Properties();
+        String user = System.getProperty("user.name");
+        String propPath = "C:/Users/" + user + "/Documents";
+        String prefix = projectName + "_";
 
+        try {
+            FileReader file = new FileReader(propPath + "/cred.properties");
+            p.load(file);
+            file.close();
+        } catch (IOException e) {
+            // Handle file read error
+        }
+
+        // Save project-specific details with a prefix
+        p.setProperty(prefix + "pathJconfig", jTextField1.getText());
+        p.setProperty(prefix + "pathWebWorkspace", jTextField2.getText());
+        p.setProperty(prefix + "username", jTextField3.getText());
+        p.setProperty(prefix + "password", String.valueOf(jPasswordField1.getPassword()));
+        p.setProperty(prefix + "autoLogin", jRadioButton1.isSelected() ? "Y" : "N");
+
+        try {
+            FileWriter file = new FileWriter(propPath + "/cred.properties");
+            p.store(file, "Project-specific credentials");
+            file.close();
+            JOptionPane.showMessageDialog(jPanel2, "Details for project '" + projectName + "' saved successfully.");
+        } catch (IOException e) {
+            // Handle file write error
+            JOptionPane.showMessageDialog(jPanel2, "Error saving details for project '" + projectName + "'.");
+        }
+    }
+    
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
+            String projectName = jTextField4.getText().trim();
+
+        // Check if the project name is empty
+        if (projectName.isEmpty()) {
+            JOptionPane.showMessageDialog(jPanel2, "Please provide a project name.");
+        } else {
+            // Call the method to save project details with the project name as a prefix
+            saveProjectDetails(projectName);
+            loadProjectNames();
+        }
+    
     }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        // TODO add your handling code here:
+   
+        // Get the selected project name from the JComboBox
+        String selectedProject = (String) jComboBox1.getSelectedItem();
+        if (selectedProject != null) {
+            // Load and display details for the selected project 
+            loadProjectDetails(selectedProject);
+              
+        }
+    }//GEN-LAST:event_jComboBox1ActionPerformed
+   
+    /**
+     * Load project names from properties file and add them to the JComboBox.
+     */
+    private void loadProjectNames() {
+        projectNames.clear();
+        Properties p = new Properties();
+        String user = System.getProperty("user.name");
+        String propPath = "C:/Users/" + user + "/Documents";
+
+        try {
+            FileReader file = new FileReader(propPath + "/cred.properties");
+            p.load(file);
+            file.close();
+        } catch (IOException e) {
+            // Handle file read error
+        }
+
+        // Find all project names in the properties file
+        for (Object key : p.keySet()) {
+            String keyStr = (String) key;
+            if (keyStr.endsWith("_pathJconfig")) {
+                String projectName = keyStr.substring(0, keyStr.indexOf("_pathJconfig"));
+                projectNames.add(projectName);
+            }
+        }
+
+        // Add project names to the JComboBox
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(projectNames.toArray(new String[0])));
+    }
+
+    /**
+     * Load project details by project name and populate text fields.
+     *
+     * @param projectName The name of the selected project.
+     */
+    private void loadProjectDetails(String projectName) {
+        Properties p = new Properties();
+        String user = System.getProperty("user.name");
+        String propPath = "C:/Users/" + user + "/Documents";
+        String prefix = projectName + "_";
+
+        try {
+            FileReader file = new FileReader(propPath + "/cred.properties");
+            p.load(file);
+            file.close();
+        } catch (IOException e) {
+            // Handle file read error
+        }
+
+        // Populate text fields with project-specific details
+        jTextField1.setText(p.getProperty(prefix + "pathJconfig"));
+        jTextField2.setText(p.getProperty(prefix + "pathWebWorkspace"));
+        jTextField3.setText(p.getProperty(prefix + "username"));
+         jTextField4.setText(projectName);
+        jPasswordField1.setText(p.getProperty(prefix + "password"));
+        jRadioButton1.setSelected(p.getProperty(prefix + "autoLogin", "N").equalsIgnoreCase("Y"));
+    }
+
+    // ... Existing code ...
+
     private void updateProcess(){
+        
         
     }
     /**
@@ -452,6 +595,7 @@ public class RestartWindow extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPasswordField jPasswordField1;
@@ -463,5 +607,6 @@ public class RestartWindow extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField jTextField4;
     // End of variables declaration//GEN-END:variables
 }
