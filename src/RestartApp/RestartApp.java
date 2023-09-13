@@ -24,22 +24,22 @@ public class RestartApp {
          String propPath = "C:/Users/"+user+"/Documents";
         File file = new File(propPath+"/cred.properties");
         
-        RestartWindow rw = new RestartWindow();
+        new RestartWindow().setVisible(true);
         
-        if (!file.exists()) {
-            b=false;
-        }
-        if(!RestartWebWorkspace.validate()){
-            b=false;
-        }
-        
-        if(!b)
-        {
-         rw.tabUpdate();
-        }
-        
-        rw.setVisible(true);
+//        if (!file.exists()) {
+//            b=false;
+//        }
+//        if(!RestartWebWorkspace.validate()){
+//            b=false;
+//        }
 //        
+//        if(!b)
+//        {
+//         rw.tabUpdate();
+//        }
+//        
+//        rw.setVisible(true);
+////        
     }
     
     
