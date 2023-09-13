@@ -20,7 +20,7 @@ public class RestartWindow extends javax.swing.JFrame {
 
     /**
      * Creates new form RestartWindow
-     * 
+     *
      */
     String jconfig = "";
     String webworkspace = "";
@@ -28,29 +28,30 @@ public class RestartWindow extends javax.swing.JFrame {
     String password = "";
     String autosave = "";
     private List<String> projectNames = new ArrayList<>();
+
     public RestartWindow() {
         initComponents();
 //        initFields();
+        jButton6.setVisible(false); 
         loadProjectNames();
-      
+
     }
-    public void initFields(){
+
+    public void initFields() {
         jTextArea1.setText("Click 'RESTART' to restart WebWorkspace.\n");
         String user = System.getProperty("user.name");
-        String propPath = "C:/Users/"+user+"/Documents";
+        String propPath = "C:/Users/" + user + "/Documents";
         Properties p = new Properties();
-        try
-        {
-        FileReader file = new FileReader(propPath+"/cred.properties");
-        p.load(file);
-        jTextField1.setText(p.getProperty("pathJconfig"));
-        jTextField2.setText(p.getProperty("pathWebWorkspace"));
-        jTextField3.setText(p.getProperty("username"));
-        jPasswordField1.setText(p.getProperty("password"));
-        jRadioButton1.setSelected(p.getProperty("autoLogin").toUpperCase().equals("Y"));
-        }
-        catch(IOException e){
-            
+        try {
+            FileReader file = new FileReader(propPath + "/cred.properties");
+            p.load(file);
+            jTextField1.setText(p.getProperty("pathJconfig"));
+            jTextField2.setText(p.getProperty("pathWebWorkspace"));
+            jTextField3.setText(p.getProperty("username"));
+            jPasswordField1.setText(p.getProperty("password"));
+            jRadioButton1.setSelected(p.getProperty("autoLogin").toUpperCase().equals("Y"));
+        } catch (IOException e) {
+
         }
     }
 
@@ -230,7 +231,7 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
 
-        jButton6.setText("ADD");
+        jButton6.setText("Submit");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
@@ -334,10 +335,9 @@ public class RestartWindow extends javax.swing.JFrame {
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
         // TODO add your handling code here:
-        if(jCheckBox1.isSelected()){
-            jPasswordField1.setEchoChar((char)0);
-        }
-        else{
+        if (jCheckBox1.isSelected()) {
+            jPasswordField1.setEchoChar((char) 0);
+        } else {
             jPasswordField1.setEchoChar('\u2022');
         }
     }//GEN-LAST:event_jCheckBox1ActionPerformed
@@ -365,26 +365,24 @@ public class RestartWindow extends javax.swing.JFrame {
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
         char s[] = jPasswordField1.getPassword();
-        password="";
-        for(char i:s){
-            password+=i;
+        password = "";
+        for (char i : s) {
+            password += i;
         }
         jconfig = jTextField1.getText();
         webworkspace = jTextField2.getText();
         username = jTextField3.getText();
-        autosave = jRadioButton1.isSelected()?"Y":"N";
-        if(jconfig.length()==0 || webworkspace.length()==0 || username.length()==0 || password.length()==0){
-            JOptionPane.showMessageDialog(jPanel2,"  **Please provide all the details.\n");
+        autosave = jRadioButton1.isSelected() ? "Y" : "N";
+        if (jconfig.length() == 0 || webworkspace.length() == 0 || username.length() == 0 || password.length() == 0) {
+            JOptionPane.showMessageDialog(jPanel2, "  **Please provide all the details.\n");
             return;
         }
-        try
-        {
-            UpdateDetails.execute(jconfig,webworkspace,username,password,autosave);
-            JOptionPane.showMessageDialog(jPanel2,"Update Successful");
+        try {
+            UpdateDetails.execute(jTextField4.getText(), jconfig, webworkspace, username, password, autosave);
+            JOptionPane.showMessageDialog(jPanel2, "Update Successful");
             initFields();
-        }
-        catch(Exception e){
-            JOptionPane.showMessageDialog(jPanel2,"Update unsuccessful");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(jPanel2, "Update unsuccessful");
         }
     }//GEN-LAST:event_jButton4ActionPerformed
 
@@ -392,7 +390,7 @@ public class RestartWindow extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             jTextArea1.setText("Process Begin...\n");
-            RestartWebWorkspace.execute(false,true,jTextArea1);        // TODO add your handling code here:
+            RestartWebWorkspace.execute(false, true, jTextArea1);        // TODO add your handling code here:
         } catch (Exception ex) {
 
         }
@@ -402,7 +400,7 @@ public class RestartWindow extends javax.swing.JFrame {
         // TODO add your handling code here:
         try {
             jTextArea1.setText("Process Begin...\n");
-            RestartWebWorkspace.execute(true,true,jTextArea1);        // TODO add your handling code here:
+            RestartWebWorkspace.execute(true, true, jTextArea1);        // TODO add your handling code here:
         } catch (Exception ex) {
 
         }
@@ -411,12 +409,12 @@ public class RestartWindow extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
             jTextArea1.setText("Process Begin...\n");
-            RestartWebWorkspace.execute(true,false,jTextArea1);        // TODO add your handling code here:
+            RestartWebWorkspace.execute(true, false, jTextArea1);        // TODO add your handling code here:
         } catch (Exception ex) {
 
         }
     }//GEN-LAST:event_jButton1ActionPerformed
-    
+
     /**
      * Save project details to properties file with a project-specific prefix.
      *
@@ -453,10 +451,10 @@ public class RestartWindow extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(jPanel2, "Error saving details for project '" + projectName + "'.");
         }
     }
-    
+
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
-            String projectName = jTextField4.getText().trim();
+        String projectName = jTextField4.getText().trim();
 
         // Check if the project name is empty
         if (projectName.isEmpty()) {
@@ -466,21 +464,33 @@ public class RestartWindow extends javax.swing.JFrame {
             saveProjectDetails(projectName);
             loadProjectNames();
         }
-    
+
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
         // TODO add your handling code here:
-   
+
         // Get the selected project name from the JComboBox
         String selectedProject = (String) jComboBox1.getSelectedItem();
         if (selectedProject != null) {
             // Load and display details for the selected project 
-            loadProjectDetails(selectedProject);
-              
+            if (selectedProject.equals("ADD NEW...")) {
+                jTextField1.setText("");
+                jTextField2.setText("");
+                jTextField3.setText("");
+                jTextField4.setText("");
+                jPasswordField1.setText("");
+                jRadioButton1.setSelected(false);
+                jButton6.setVisible(true); 
+            } else {
+                jButton6.setVisible(false); 
+                loadProjectDetails(selectedProject);
+                
+            }
+
         }
     }//GEN-LAST:event_jComboBox1ActionPerformed
-   
+
     /**
      * Load project names from properties file and add them to the JComboBox.
      */
@@ -506,7 +516,7 @@ public class RestartWindow extends javax.swing.JFrame {
                 projectNames.add(projectName);
             }
         }
-
+        projectNames.add("ADD NEW...");
         // Add project names to the JComboBox
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(projectNames.toArray(new String[0])));
     }
@@ -534,17 +544,16 @@ public class RestartWindow extends javax.swing.JFrame {
         jTextField1.setText(p.getProperty(prefix + "pathJconfig"));
         jTextField2.setText(p.getProperty(prefix + "pathWebWorkspace"));
         jTextField3.setText(p.getProperty(prefix + "username"));
-         jTextField4.setText(projectName);
+        jTextField4.setText(projectName);
         jPasswordField1.setText(p.getProperty(prefix + "password"));
         jRadioButton1.setSelected(p.getProperty(prefix + "autoLogin", "N").equalsIgnoreCase("Y"));
     }
 
     // ... Existing code ...
+    private void updateProcess() {
 
-    private void updateProcess(){
-        
-        
     }
+
     /**
      * @param args the command line arguments
      */

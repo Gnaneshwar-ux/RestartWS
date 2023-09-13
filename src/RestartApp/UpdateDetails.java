@@ -14,7 +14,7 @@ import java.util.Properties;
  */
 public class UpdateDetails {
     static String propPath = "";
-    public static boolean execute(String pathJconfig,String pathWebWorkspace,String username,String password,String autoLogin) throws Exception{
+    public static boolean execute(String projectName,String pathJconfig,String pathWebWorkspace,String username,String password,String autoLogin) throws Exception{
         
         try
         {
@@ -22,11 +22,11 @@ public class UpdateDetails {
             propPath = "C:/Users/"+user+"/Documents";
             Properties p = new Properties();
             FileWriter file = new FileWriter(propPath+"/cred.properties",true);
-            p.setProperty("pathJconfig",pathJconfig);
-            p.setProperty("pathWebWorkspace", pathWebWorkspace);
-            p.setProperty("username",username);
-            p.setProperty("password",password);
-            p.setProperty("autoLogin", autoLogin);
+            p.setProperty(projectName+"_pathJconfig",pathJconfig);
+            p.setProperty(projectName+"_pathWebWorkspace", pathWebWorkspace);
+            p.setProperty(projectName+"_username",username);
+            p.setProperty(projectName+"_password",password);
+            p.setProperty(projectName+"_autoLogin", autoLogin);
             p.store(file,"user credentials for NMS");
             return true;
         }
