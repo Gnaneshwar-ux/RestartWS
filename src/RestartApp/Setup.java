@@ -1,5 +1,7 @@
 package RestartApp;
 
+import static RestartApp.RestartWebWorkspace.clear;
+import static RestartApp.RestartWebWorkspace.setTextArea;
 import java.util.*;
 import java.io.*;
 import java.nio.file.Files;
@@ -15,19 +17,21 @@ public class Setup {
             
             
                 send=textf;
+                clear();
                 
-                send.setText(send.getText()+"jconfig path : "+pathJconfig+"\n");
-                send.setText(send.getText()+"WebWorkspace.exe path : "+pathWebWorkspace+"\n");
-                send.setText(send.getText()+"username : "+username+"\n");
-                send.setText(send.getText()+"Autologin : "+autoLogin+"\n");
+                setTextArea("jconfig path : "+pathJconfig+"\n");
+                setTextArea("WebWorkspace.exe path : "+pathWebWorkspace+"\n");
+                setTextArea("username : "+username+"\n");
+                setTextArea("Autologin : "+autoLogin+"\n");
 		
 		String user = System.getProperty("user.name");
                 
-                send.setText(send.getText()+"System user : "+user+"\n");
+                setTextArea("System user : "+user+"\n");
 
 		String propPath = "C:/Users/" + user + "/Documents";
 
                 if(!updateFile(pathJconfig + "/global/xml/" + tempFile)){
+                    setTextArea("Update file failed");
                     return;
                 }
 
@@ -45,13 +49,13 @@ public class Setup {
                
 	}
 
-	public static boolean updateFile(String pathLogin)  {
+	public static boolean updateFile(String pathLogin) throws InterruptedException  {
 
             try{
 		File file = new File(pathLogin);
 
 		if (!file.exists()) {
-			send.setText(send.getText()+"Login.xml is not found!\n");
+			setTextArea("Login.xml is not found!\n");
                         return false;
 		}
 
@@ -88,13 +92,33 @@ public class Setup {
 			targetDirLogin.mkdirs();
 		}
 
-		Files.copy(sourceFileLogin.toPath(), targetDirLogin.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		String[] command = {"cmd", "/c", "copy", tempFile, pathLogin};
 
-                send.setText(send.getText()+"Login.xml file copied successfully!\n");
+                ProcessBuilder processBuilder = new ProcessBuilder(command);
+
+                
+                Process process = processBuilder.start();
+                
+                 BufferedReader reader1 = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                String line1;
+                while ((line1 = reader1.readLine()) != null) {
+                    setTextArea(line1);
+                }
+
+                int exitCode = process.waitFor();
+                
+                if(exitCode == 0){
+                    
+                }
+                else{
+                    setTextArea("Login.xml copy failed.");
+                }
+
+                setTextArea("Login.xml file copied successfully!\n");
                 return true;
             }
             catch(IOException e){
-                send.setText(send.getText()+e+"\n");
+                setTextArea(e+"\n");
                 return false;
             }
 	}
@@ -114,7 +138,7 @@ public class Setup {
 		Files.copy(sourceFileLogin.toPath(), targetDirLogin.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 		//System.out.println("Inc file copied successfully!");
-                send.setText(send.getText()+"Inc file copied successfully!\n");
+                setTextArea("Inc file copied successfully!\n");
 
 		// copying command files
 
@@ -128,11 +152,11 @@ public class Setup {
 		Files.copy(sourceFileLogin.toPath(), targetDirLogin.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 		//System.out.println("Java command file copied successfully!");
-                send.setText(send.getText()+"Java command file copied successfully!\n");
+                setTextArea("Java command file copied successfully!\n");
                 return true;
                 }
                 catch(IOException e){
-                    send.setText(send.getText()+e+"\n");
+                    setTextArea(e+"\n");
                     return false;
                 }
 	}

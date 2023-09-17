@@ -4,6 +4,8 @@
  */
 package RestartApp;
 
+import static RestartApp.RestartWebWorkspace.getValue;
+import static RestartApp.RestartWebWorkspace.putValue;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
@@ -18,16 +20,27 @@ public class UpdateDetails {
         
         try
         {
-            String user = System.getProperty("user.name");
-            propPath = "C:/Users/"+user+"/Documents";
-            Properties p = new Properties();
-            FileWriter file = new FileWriter(propPath+"/cred.properties",true);
-            p.setProperty(projectName+"_pathJconfig",pathJconfig);
-            p.setProperty(projectName+"_pathWebWorkspace", pathWebWorkspace);
-            p.setProperty(projectName+"_username",username);
-            p.setProperty(projectName+"_password",password);
-            p.setProperty(projectName+"_autoLogin", autoLogin);
-            p.store(file,"user credentials for NMS");
+            putValue("pathJconfig",pathJconfig);
+            putValue("pathWebWorkspace", pathWebWorkspace);
+            putValue("username",username);
+            putValue("password",password);
+            putValue("autoLogin", autoLogin);
+            
+            return true;
+        }
+        catch(IOException e){
+            return false;
+        }
+    }
+    public static boolean addProject(String projectName){
+        try
+        {
+            if(getValue("Projects")==null || getValue("Projects").equals("") ){
+                putValue("Projects", projectName);
+            }
+            else {
+                 putValue("Projects", getValue("Projects")+" , "+projectName);
+            }
             return true;
         }
         catch(IOException e){

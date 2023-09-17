@@ -1,56 +1,244 @@
 package RestartApp;
 
+import static RestartApp.Delete.tempFile;
+import static RestartApp.UpdateDetails.addProject;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 public class RestartWebWorkspace {
 
     static String propPath = "";
     static javax.swing.JTextArea send;
-    static Map<String,String> jpsMap;
-    
+    static Map<String, String> jpsMap;
+    static javax.swing.JComboBox combobox;
+    static javax.swing.JComboBox buildbox;
+    static javax.swing.JDialog jDialog1;
+    static JProgressBar bar;
 
-    public static void execute(boolean start,boolean build, boolean stop, javax.swing.JTextArea textA) throws Exception {
+    public static void init(javax.swing.JTextArea textA, javax.swing.JComboBox boxA, javax.swing.JComboBox boxB, javax.swing.JDialog jDialog, JProgressBar bar1) {
         send = textA;
+        combobox = boxA;
+        buildbox = boxB;
+        String user = System.getProperty("user.name");
+        propPath = "C:/Users/" + user + "/Documents";
+        jDialog1 = jDialog;
+        bar = bar1;
+    }
+
+    public static void execute(boolean start, boolean build, boolean stop) throws Exception {
 
         //Finding Most recent log file in OracleNMS.
-        String user = System.getProperty("user.name");
-
-        propPath = "C:/Users/" + user + "/Documents";
-
-       if(stop){
-           setTextArea("stop");
-           
-           loadProcessMap();
-           return;
-       }
-       if(build){
-           build();
-       }
-       if(start){
-           clear();
-           //start();
-       }
-    }
-    
-    public static void stopProject(String p){
+        if (!RestartWindow.isSetuped) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    JOptionPane.showMessageDialog(jDialog1, "Please setup the application with proper details.", "Warning", JOptionPane.WARNING_MESSAGE);
+                }
+            });
+            return;
+        }
         
+        if (stop) {
+            clear();
+            setBar(0);
+            loadProcessMap();
+            setBar(40);
+            setTextArea("STOP Process Begin...\n");
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    try {
+                        stopProject(combobox.getSelectedItem().toString());
+                    } catch (IOException ex) {
+                        setTextArea("Failed with IOException");
+                    }
+                }
+            });
+            return;
+        }
+        if (build) {
+            if(!stop)clear();
+            setBar(0);
+            setTextArea("BUILD Process Begin...\n");
+            build();
+        }
+        if (start) {
+            if(!build)clear();
+            setTextArea("Start Process Begin...\n");
+            setBar(0);
+            start();
+        }
     }
     
+    public static void viewLog() throws IOException{
+        
+        SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+        List<Map<String, String>> l = getRunningProcessList(combobox.getSelectedItem().toString(),false);
+        
+        
+                    l = selectProcess(l);
+                       
+        String user = System.getProperty("user.name");
+        String pathLog = "C:\\Users\\" + user + "\\AppData\\Local\\Temp\\OracleNMS\\";
+        if(l==null || l.isEmpty()){
+            
+            return;
+        }
+        
+        setTextArea(l.get(0).get("FILE"));
+        
+        String[] command = {"cmd", "/c", "notepad", pathLog+l.get(0).get("FILE")};
+
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+try {
+        Process process = processBuilder.start();
+        
+        
+            
+        } catch (Exception ex) {
+            setTextArea("Exception while opening log");
+        }
+         }
+            });
+
+    }
+
+    public static void stopProject(String project) throws IOException {
+        List<Map<String, String>> processList = getRunningProcessList(project,true);
+        
+        setBar(60);
+
+        if (processList.isEmpty()) {
+            setTextArea("No running processes found. - " + project);
+            setBar(100);
+
+        } else {
+            if (processList.size() == 1) {
+                try {
+                    stop(processList.get(0).get("PID"));
+                    setTextArea("Successfully stoped process - " + processList.get(0).get("PID"));
+                    setBar(100);
+                } catch (InterruptedException ex) {
+                    setTextArea("Failed to stop process - " + processList.get(0).get("PID"));
+                    setBar(100);
+                }
+            } else {
+                processList = selectProcess(processList);
+                for (Map<String, String> process : processList) {
+                    try {
+                        stop(process.get("PID"));
+                        setTextArea("Successfully stoped process - " + process.get("PID"));
+                    } catch (InterruptedException ex) {
+                        setTextArea("Failed to stop process - " + process.get("PID"));
+                        setBar(100);
+                    }
+                }
+                
+                setBar(100);
+            }
+        }
+    }
+
+    public static List<Map<String, String>> selectProcess(List<Map<String, String>> process) {
+        String[][] rowData = new String[process.size()][4];
+
+        for (int i = 0; i < process.size(); i++) {
+            rowData[i][0] = i + 1 + "";
+            rowData[i][1] = process.get(i).get("USER");
+            rowData[i][2] = process.get(i).get("TIME");
+            rowData[i][3] = process.get(i).get("PID");
+        }
+
+        //JTable table = new JTable(rowData, new Object[]{"S.NO","USER","TIMESTAMP","PID"});
+        DefaultTableModel tableModel = new DefaultTableModel(rowData, new Object[]{"S.NO", "USER", "TIMESTAMP", "PID"});
+        JTable table = new JTable(tableModel) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Make all cells non-editable
+            }
+        };
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+        JLabel label = new JLabel("-Multiple applications found running. Select one or more-");
+        label.setHorizontalAlignment(JLabel.LEFT);
+        label.setFont(new Font("Arial", Font.PLAIN, 14));
+        label.setBorder(new EmptyBorder(0, 0, 5, 0));
+        panel.add(label, BorderLayout.NORTH);
+
+        // Create a JPanel to hold the table
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        panel.setPreferredSize(new Dimension(360, 150)); // Set the preferred size
+
+        int[] columnWidths = {50, 50, 120, 60}; // Widths for each column in pixels
+
+        for (int i = 0; i < columnWidths.length; i++) {
+            TableColumn column = table.getColumnModel().getColumn(i);
+            column.setPreferredWidth(columnWidths[i]);
+        }
+
+        // Show the JOptionPane with the JPanel as the message
+        JFrame jf = new JFrame();
+        jf.setAlwaysOnTop(true);
+        int result = JOptionPane.showOptionDialog(
+                jf,
+                panel,
+                "Select process",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                null
+        );
+
+        // Check the user's choice
+        if (result == JOptionPane.OK_OPTION) {
+            int[] selectedRow = table.getSelectedRows();
+            if (selectedRow.length != 0) {
+                List<Map<String, String>> res = new ArrayList<>();
+                for (int i : selectedRow) {
+                    res.add(process.get(i));
+                }
+                return res;
+
+            } else {
+                setTextArea("Please select processes to continue");
+            }
+        } else {
+            setTextArea("Cancelled process.");
+        }
+        return null;
+
+    }
+
     //Local copy launched "jps" gives as JWSLauncher
     //JNLP copy launched "jps" gives as Launcher
-    public static void loadProcessMap(){
+    public static void loadProcessMap() {
         setTextArea("Loading process list ...");
         jpsMap = new HashMap<>();
-         try {
+        try {
             Process process = Runtime.getRuntime().exec("jps");
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
@@ -62,216 +250,253 @@ public class RestartWebWorkspace {
                 }
             }
             process.waitFor();
-             
+
         } catch (IOException | InterruptedException e) {
-             setTextArea(">>> Exception while executing jsp command\n\n");
-             setTextArea(e.toString());
+            setTextArea(">>> Exception while executing jsp command\n\n");
+            setTextArea(e.toString());
         }
-          setTextArea("Loading process list ... completed");
+        setTextArea("Loading process list ... completed");
     }
-    
-    
-    public static void getRunningProjectList(String p){
+
+    public static List<Map<String, String>> getRunningProcessList(String project, boolean running) {
         File logs[] = getLogFiles("WebWorkspace");
-        
-        for(File log: logs){
+        List<Map<String, String>> projects = new ArrayList<>();
+
+        for (File log : logs) {
             try {
-                Map<String,String> mp = parseLog(log);
-                
-                if(mp.get("PROJECT").equals(p)){
-                    
+                Map<String, String> mp = parseLog(log);
+                if (mp != null && !mp.isEmpty() && mp.get("PROJECT").equals(project) && (!running || jpsMap.containsKey(mp.get("PID")) && jpsMap.get(mp.get("PID")).equals("JWSLauncher"))) {
+
+                    projects.add(mp);
+
                 }
-                
             } catch (IOException ex) {
-                
+                return projects;
             }
+        }
+
+        return projects;
+    }
+
+    public static void refreshProjects(Set<String> projectList) {
+        clear();
+        setTextArea("Reloading projects from logs..");
+        File[] files = getLogFiles("");
+        for (File f : files) {
+            try {
+                Map<String, String> m = parseLog(f);
+                if (m != null) {
+                    if (!projectList.contains(m.get("PROJECT"))) {
+                        addProject(m.get("PROJECT"));
+                        projectList.add(m.get("PROJECT"));
+                        setTextArea("added project - " + m.get("PROJECT"));
+                    }
+                }
+            } catch (IOException ex) {
+                setTextArea("Reloading exited with exception - " + ex.toString());
+            }
+        }
+        setTextArea("Reload completed successfully");
+    }
+
+    public static void start() throws IOException, InterruptedException {
+        String path = "";
+        setBar(10);
+        if (getValue("pathWebWorkspace") == null || getValue("pathWebWorkspace").equals("")) {
             
+            setTextArea("\nError*** WebWorkspace.exe path not valid.\n");
+            setBar(100);
+            return;
+
+        } else {
+            path = getValue("pathWebWorkspace");
+            setBar(30);
+        }
+        String commandArray1[] = {"cmd.exe", "/c ", "WebWorkspace.exe"};
+        try {
+            File f = new File(path+"/WebWorkspace.exe");
+            if(!f.exists()){
+                setTextArea("workspace path is incorrect.\n");
+                setBar(100);
+                return;
+            }
+            Process process = Runtime.getRuntime().exec(commandArray1, null, new File(path));
+            
+            
+            setTextArea("WINDOW OPEN DONE\n");
+            setBar(100);
+            
+
+        } catch (IOException e) {
+
+            setTextArea("Error** Invalid WebWorkspace path\n");
+            setTextArea(e + "\n");
+            setBar(100);
         }
     }
-    
-    public static void isRunning(String PID){
-        
-    }
-    
-    public static void start()throws IOException{
+
+    public static void build() throws IOException, InterruptedException {
         String path = "";
+        setBar(10);
+        //textA.setText(textA.getText()+"loop");
+        if (getValue("pathJconfig") == null || getValue("pathJconfig").equals("")) {
 
-            if (getValue("pathWebWorkspace") == null || getValue("pathWebWorkspace").equals("")) {
+            setTextArea("\nError*** Jconfig path not valid.\n");
+            setBar(100);
+            return;
 
-                setTextArea( "\nError*** WebWorkspace.exe path not valid.\n");
-                return;
+        } else {
+            path = getValue("pathJconfig");
+            setBar(20);
+        }
 
-            } else {
-                path = getValue("pathWebWorkspace");
-            }
-            String commandArray1[] = {"cmd.exe", "/c ", "WebWorkspace.exe"};
-            try {
-                Process process = Runtime.getRuntime().exec(commandArray1, null, new File(path));
-                setTextArea( "NEW WINDOW OPEN\n");
-
-            } catch (IOException e) {
-
-                setTextArea("Error** Invalid WebWorkspace path\n");
-                setTextArea( e + "\n");
-            }
-    }
-    
-    public static void build() throws IOException, InterruptedException{
-        String path = "";
-            //textA.setText(textA.getText()+"loop");
-            if (getValue("pathJconfig") == null || getValue("pathJconfig").equals("")) {
-
-                setTextArea( "\nError*** Jconfig path not valid.\n");
-                return;
-
-            } else {
-                path = getValue("pathJconfig");
-            }
-
+        try {
             
-            try {
-
-                ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "ant config && exit 0 || exit 1");
-                builder.directory(new File(path));
-                // start the process
-                Process process = builder.start();
-
-                BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-                String s = null;
-                String result = "";
-                setTextArea( "Build running... (ant config)" + "\n");
-                while ((s = stdInput.readLine()) != null) {
-                    result += s + "\n";
-                    setTextArea( result + "\n");
-                }
-                if (process.waitFor() == 1) {
-                    return;
-
-                } else {
-
-                    setTextArea( "-----BUILD SUCCESSFUL.\n");
-
-                }
-            } catch (IOException e) {
-                setTextArea( "Error** Invalid Jconfig path.\n");
-                setTextArea( e + "\n");
-                return;
+            String type = "";
+            
+            if(buildbox.getSelectedItem().toString().equals("Ant config")){
+                type = "ant config";
+            }
+            else{
+                type = "ant clean config";
             }
 
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", type+" && exit 0 || exit 1");
+            builder.directory(new File(path));
+            // start the process
+            Process process = builder.start();
+            setBar(40);
+
+            BufferedReader stdInput = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String s = null;
+            String result = "";
+            setTextArea("Build running... ("+type+")" + "\n");
+            
+            setBar(50);
+            while ((s = stdInput.readLine()) != null) {
+                result += s + "\n";
+                setTextArea(s);
+            }
+            setBar(70);
+            if (process.waitFor() == 1) {
+                setBar(100);
+                return;
+
+            } else {
+
+                setTextArea("-----BUILD SUCCESSFUL.\n");
+                setBar(100);
+            }
+        } catch (IOException e) {
+            setTextArea("Error** Invalid Jconfig path.\n");
+            setTextArea(e + "\n");
+            setBar(100);
+            return;
+        }
+
     }
-    
-    public static void stop(String PID)throws IOException, InterruptedException{
+
+    public static void stop(String PID) throws IOException, InterruptedException {
         Process process = Runtime.getRuntime().exec("cmd /c " + "taskkill /F /pid " + PID + " && exit 0 || exit 1");
 
-        setTextArea( "PID : " + PID + "\n");
+        setTextArea("PID : " + PID + "\n");
 
         if (process.waitFor() == 1) {
             setTextArea("No opened webWorkspace found..\n");
         } else {
-            setTextArea( "Closed webWorkspace...\n");
+            setTextArea("Closed webWorkspace...\n");
         }
     }
-    
-    public static File[] getLogFiles(String app){
+
+    public static File[] getLogFiles(String app) {
         String user = System.getProperty("user.name");
         propPath = "C:/Users/" + user + "/Documents";
-        
+
         File directory = new File("C:\\Users\\" + user + "\\AppData\\Local\\Temp\\OracleNMS");
-            File[] logfiles = directory.listFiles((dir, name) -> name.contains(app) && new File(dir, name).isFile());
-            long lastModifiedTime = Long.MIN_VALUE;
-            File chosenFile = null;
+        File[] logfiles = directory.listFiles((dir, name) -> name.contains(app) && new File(dir, name).isFile());
+        long lastModifiedTime = Long.MIN_VALUE;
+        File chosenFile = null;
 
+        if (logfiles != null) {
+            Arrays.sort(logfiles, new Comparator<File>() {
+                @Override
+                public int compare(File file1, File file2) {
+                    long lastModified1 = file1.lastModified();
+                    long lastModified2 = file2.lastModified();
 
-            if (logfiles != null) {
-                Arrays.sort(logfiles, new Comparator<File>() {
-                    @Override
-                    public int compare(File file1, File file2) {
-                        long lastModified1 = file1.lastModified();
-                        long lastModified2 = file2.lastModified();
-
-                        if (lastModified1 < lastModified2) {
-                            return 1; // For descending order
-                        } else if (lastModified1 > lastModified2) {
-                            return -1; // For descending order
-                        } else {
-                            return 0;
-                        }
+                    if (lastModified1 < lastModified2) {
+                        return 1; // For descending order
+                    } else if (lastModified1 > lastModified2) {
+                        return -1; // For descending order
+                    } else {
+                        return 0;
                     }
-                });
-            }
-            else{
-                JOptionPane.showMessageDialog(null, "Before using this application you must run the WebWorkspace atleast once manually.", "Warning", JOptionPane.WARNING_MESSAGE);
-                return null;
-            }
+                }
+            });
+        } else {
+            JOptionPane.showMessageDialog(null, "Before using this application you must run the WebWorkspace atleast once manually.", "Warning", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
 
-            return logfiles;
+        return logfiles;
     }
-    
-    public static Map<String,String> parseLog(File file) throws FileNotFoundException, IOException{
-        
-        if(file == null)return null;
-        
+
+    public static Map<String, String> parseLog(File file) throws FileNotFoundException, IOException {
+
+        if (file == null) {
+            return null;
+        }
+
         FileReader fr = new FileReader(file);
         BufferedReader br = new BufferedReader(fr);
         String pidLine = "";
         String projectLine = "";
-        String time="";
+        
         String username = "";
         String line;
-        boolean a=false,b=false,c=true,d=true;
+        boolean a = false, b = false,  d = true;
         while ((line = br.readLine()) != null) {
             if (line.startsWith("PID")) {
                 pidLine = line;
-                a=true;
+                a = true;
             }
-            if(line.startsWith("CLIENT_TOOL_PROJECT_NAME")){
+            if (line.startsWith("CLIENT_TOOL_PROJECT_NAME")) {
                 projectLine = line;
-                b=true;
+                b = true;
             }
-            if(line.startsWith("CLIENT_TOOL_PROJECT_BUILD_DATE")){
-                time = line;
-                c=true;
-            }
-            if(line.startsWith("USERNAME")){
+            
+            if (line.startsWith("USERNAME")) {
                 username = line;
-                d=true;
+                d = true;
             }
-            if(a && b && c && d){
+            if (a && b && d) {
                 break;
             }
         }
-        
-        if(!(a && b)){
+
+        if (!(a && b)) {
             return null;
         }
+        String time;
+        long lastModifiedTimestamp = file.lastModified();
+        Date lastModifiedDate = new Date(lastModifiedTimestamp);
         
-        String inputDateStr = time.split("=")[1].trim().replaceAll("\"", "");
-        SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+        SimpleDateFormat outputDateFormat = new SimpleDateFormat("hh:mm a dd-MM-yyyy");
+        time = outputDateFormat.format(lastModifiedDate).replaceAll("am", "AM").replaceAll("pm", "PM");
 
-        try {
-            Date date = inputDateFormat.parse(inputDateStr);
-            
-            SimpleDateFormat outputDateFormat = new SimpleDateFormat("hh:mm a dd-MM-yyyy");
-            time = outputDateFormat.format(date);
+        Map<String, String> mp = new HashMap<>();
 
-        } catch (ParseException e) {
-            time = "N/A";
-        }
-        
-        Map<String,String> mp = new HashMap<>();
-        
-        mp.put("PID",pidLine.split("=")[1].trim() );
+        mp.put("PID", pidLine.split("=")[1].trim());
         mp.put("PROJECT", projectLine.split("=")[1].trim().replaceAll("\"", ""));
-        mp.put("USER", username.split("=")[1].trim().replaceAll("\"", ""));
+        mp.put("USER", username.equals("") ? "N/A" : username.split("=")[1].trim().replaceAll("\"", ""));
         mp.put("TIME", time);
+        mp.put("FILE", file.getName());
         return mp;
     }
 
     public static boolean validate() {
-        String user = System.getProperty("user.name");
 
-        propPath = "C:/Users/" + user + "/Documents";
         try {
             if (getValue("pathJconfig") == null || getValue("pathJconfig").length() == 0) {
                 return false;
@@ -288,6 +513,17 @@ public class RestartWebWorkspace {
             if (getValue("autoLogin") == null || getValue("autoLogin").length() == 0) {
                 return false;
             }
+
+            return true;
+
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public static boolean validateSetup() {
+
+        try {
 
             String pathLogin = getValue("pathJconfig") + "/global/xml/Login.xml";
 
@@ -325,6 +561,9 @@ public class RestartWebWorkspace {
     }
 
     public static String getValue(String name) throws IOException {
+        if (!name.equals("Projects")) {
+            name = combobox.getSelectedItem().toString() + "_" + name;
+        }
         FileReader file = new FileReader(propPath + "/cred.properties");
         Properties p = new Properties();
         p.load(file);
@@ -334,30 +573,79 @@ public class RestartWebWorkspace {
     }
 
     public static void putValue(String name, String value) throws IOException {
-        FileWriter file = new FileWriter(propPath + "/cred.properties", true);
+
+        if (!(name.equals("Projects")||name.equals("selectedProject")) ) {
+            name = combobox.getSelectedItem().toString() + "_" + name;
+        }
+
+        String filePath = propPath + "/cred.properties"; // Replace with the full path to your properties file
+
+        // Load existing properties from the file
         Properties p = new Properties();
+        FileReader fileReader = new FileReader(filePath);
+        p.load(fileReader);
+        fileReader.close();
+
+        // Remove the property if it exists
+        p.remove(name);
+
+        // Set the new property
         p.setProperty(name, value);
-        p.store(file, "user credentials for NMS");
-        file.close();
-        return;
+
+        // Save the modified properties back to the file
+        FileWriter fileWriter = new FileWriter(filePath);
+        p.store(fileWriter, "user credentials for NMS");
+        fileWriter.close();
     }
     
-    public static void  setTextArea(String s){
-        
+    public static void removeValue(String name) throws IOException {
+
+        if (!(name.equals("Projects")||name.equals("selectedProject")) ) {
+            name = combobox.getSelectedItem().toString() + "_" + name;
+        }
+
+        String filePath = propPath + "/cred.properties"; // Replace with the full path to your properties file
+
+        // Load existing properties from the file
+        Properties p = new Properties();
+        FileReader fileReader = new FileReader(filePath);
+        p.load(fileReader);
+        fileReader.close();
+
+        // Remove the property if it exists
+        p.remove(name);
+
+        // Save the modified properties back to the file
+        FileWriter fileWriter = new FileWriter(filePath);
+        p.store(fileWriter, "user credentials for NMS");
+        fileWriter.close();
+    }
+
+    public static void setTextArea(String s) {
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                send.append(s+"\n");
+                send.append(s + "\n");
             }
         }); // Handle any exceptions that may occur
     }
-    
-    public static void clear(){
+
+    public static void clear() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 send.setText("");
             }
         }); // Handle any exceptions that may occur
+    }
+    
+    public static void setBar(int i){
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                bar.setValue(i);
+            }
+        }); 
     }
 }

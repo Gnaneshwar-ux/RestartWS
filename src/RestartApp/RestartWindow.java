@@ -4,6 +4,8 @@
  */
 package RestartApp;
 
+
+import static RestartApp.RestartWebWorkspace.*;
 import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,7 +17,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -40,32 +44,36 @@ public class RestartWindow extends javax.swing.JFrame {
     String username = "";
     String password = "";
     String autosave = "";
-    private List<String> projectNames = new ArrayList<>();
+    private Set<String> projectsList;
+    static boolean isSetuped = false;
 
     public RestartWindow() {
         initComponents();
- //       initFields();
-        
+        RestartWebWorkspace.init(jTextArea1, jComboBox1,jComboBox2, jDialog1, jProgressBar2);
+
         loadProjectNames();
+        initFields();
 
     }
 
     public void initFields() {
-        jTextArea1.setText("Click 'RESTART' to restart WebWorkspace.\n");
-        String user = System.getProperty("user.name");
-        String propPath = "C:/Users/" + user + "/Documents";
-        Properties p = new Properties();
-        try {
-            FileReader file = new FileReader(propPath + "/cred.properties");
-            p.load(file);
-            jTextField1.setText(p.getProperty("pathJconfig"));
-            jTextField2.setText(p.getProperty("pathWebWorkspace"));
-            jTextField3.setText(p.getProperty("username"));
-            jPasswordField1.setText(p.getProperty("password"));
-            jRadioButton1.setSelected(p.getProperty("autoLogin").toUpperCase().equals("Y"));
-            
-        } catch (IOException e) {
 
+        try {
+            jTextField1.setText(getValue("pathJconfig"));
+            jTextField2.setText(getValue("pathWebWorkspace"));
+            jTextField3.setText(getValue("username"));
+            jPasswordField1.setText(getValue("password"));
+            jRadioButton1.setSelected(getValue("autoLogin") != null ? getValue("autoLogin").toUpperCase().equals("Y") : false);
+            putValue("selectedProject",jComboBox1.getSelectedItem().toString());
+            if (RestartWebWorkspace.validate() && RestartWebWorkspace.validateSetup()) {
+                jButton4.setText("Update");
+                isSetuped = true;
+            } else {
+                jButton4.setText("Setup");
+                isSetuped = false;
+            }
+        } catch (IOException e) {
+            setTextArea("Initializing fields exited with exception");
         }
     }
 
@@ -82,6 +90,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jDialog1 = new javax.swing.JDialog();
         jProgressBar1 = new javax.swing.JProgressBar();
         jDialog2 = new javax.swing.JDialog();
+        jOptionPane1 = new javax.swing.JOptionPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jButton2 = new javax.swing.JButton();
@@ -103,6 +112,10 @@ public class RestartWindow extends javax.swing.JFrame {
         jButton4 = new javax.swing.JButton();
         jProgressBar2 = new javax.swing.JProgressBar();
         jLabel6 = new javax.swing.JLabel();
+        jButton7 = new javax.swing.JButton();
+        jButton8 = new javax.swing.JButton();
+        jComboBox2 = new javax.swing.JComboBox<>();
+        jButton9 = new javax.swing.JButton();
 
         jButton3.setText("Restart");
 
@@ -141,6 +154,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jButton2.setForeground(new java.awt.Color(255, 255, 255));
         jButton2.setText("RESTART");
         jButton2.setFocusPainted(false);
+        jButton2.setMargin(new java.awt.Insets(2, 6, 2, 6));
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -149,8 +163,10 @@ public class RestartWindow extends javax.swing.JFrame {
 
         jButton5.setBackground(new java.awt.Color(204, 0, 0));
         jButton5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jButton5.setForeground(new java.awt.Color(255, 255, 255));
         jButton5.setText("STOP");
         jButton5.setFocusPainted(false);
+        jButton5.setMargin(new java.awt.Insets(2, 6, 2, 6));
         jButton5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton5ActionPerformed(evt);
@@ -162,6 +178,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("START");
         jButton1.setFocusPainted(false);
+        jButton1.setMargin(new java.awt.Insets(2, 6, 2, 6));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -171,6 +188,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText("Project : ");
+        jLabel1.setAlignmentX(0.5F);
 
         jComboBox1.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -180,11 +198,13 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
 
-        jButton6.setBackground(new java.awt.Color(0, 153, 153));
+        jButton6.setBackground(new java.awt.Color(204, 0, 51));
         jButton6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jButton6.setForeground(new java.awt.Color(255, 255, 255));
-        jButton6.setText("SUBMIT");
+        jButton6.setText("Delete");
+        jButton6.setAlignmentX(0.5F);
         jButton6.setFocusPainted(false);
+        jButton6.setMargin(new java.awt.Insets(2, 6, 2, 6));
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton6ActionPerformed(evt);
@@ -194,8 +214,10 @@ public class RestartWindow extends javax.swing.JFrame {
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel5.setText("Jconfig path : ");
+        jLabel5.setAlignmentX(0.5F);
 
         jTextField1.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        jTextField1.setToolTipText("C:\\NMS projects\\OPAL\\jconfig");
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField1ActionPerformed(evt);
@@ -205,6 +227,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel2.setText("WebWorkspace.exe path : ");
+        jLabel2.setAlignmentX(0.5F);
 
         jTextField2.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jTextField2.addActionListener(new java.awt.event.ActionListener() {
@@ -216,6 +239,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel3.setText("Username : ");
+        jLabel3.setAlignmentX(0.5F);
 
         jTextField3.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jTextField3.addActionListener(new java.awt.event.ActionListener() {
@@ -227,6 +251,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel4.setText("Password : ");
+        jLabel4.setAlignmentX(0.5F);
 
         jPasswordField1.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
         jPasswordField1.addActionListener(new java.awt.event.ActionListener() {
@@ -236,6 +261,7 @@ public class RestartWindow extends javax.swing.JFrame {
         });
 
         jCheckBox1.setText("show");
+        jCheckBox1.setAlignmentX(0.5F);
         jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jCheckBox1ActionPerformed(evt);
@@ -244,6 +270,7 @@ public class RestartWindow extends javax.swing.JFrame {
 
         jRadioButton1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jRadioButton1.setText("Auto login");
+        jRadioButton1.setAlignmentX(0.5F);
         jRadioButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jRadioButton1ActionPerformed(evt);
@@ -255,7 +282,9 @@ public class RestartWindow extends javax.swing.JFrame {
         jButton4.setForeground(new java.awt.Color(255, 255, 255));
         jButton4.setText("UPDATE");
         jButton4.setToolTipText("");
+        jButton4.setAlignmentX(0.5F);
         jButton4.setFocusPainted(false);
+        jButton4.setMargin(new java.awt.Insets(2, 6, 2, 6));
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton4ActionPerformed(evt);
@@ -268,6 +297,43 @@ public class RestartWindow extends javax.swing.JFrame {
         jLabel6.setForeground(new java.awt.Color(102, 102, 102));
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel6.setText("NMS BUILD AUTOMATION TOOL");
+
+        jButton7.setBackground(new java.awt.Color(102, 102, 102));
+        jButton7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jButton7.setForeground(new java.awt.Color(255, 255, 255));
+        jButton7.setText("Reload");
+        jButton7.setAlignmentX(0.5F);
+        jButton7.setMargin(new java.awt.Insets(2, 5, 3, 5));
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+
+        jButton8.setBackground(new java.awt.Color(242, 242, 242));
+        jButton8.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jButton8.setForeground(new java.awt.Color(102, 102, 102));
+        jButton8.setText("Open Log");
+        jButton8.setMargin(new java.awt.Insets(2, 6, 2, 6));
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton8ActionPerformed(evt);
+            }
+        });
+
+        jComboBox2.setBackground(new java.awt.Color(242, 242, 242));
+        jComboBox2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Ant config", "Ant clean config" }));
+
+        jButton9.setBackground(new java.awt.Color(153, 204, 0));
+        jButton9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jButton9.setForeground(new java.awt.Color(255, 255, 255));
+        jButton9.setText("BUILD");
+        jButton9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton9ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -292,7 +358,9 @@ public class RestartWindow extends javax.swing.JFrame {
                                     .addGroup(layout.createSequentialGroup()
                                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(jButton7)))
                                 .addGap(0, 0, Short.MAX_VALUE)))
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
@@ -300,7 +368,13 @@ public class RestartWindow extends javax.swing.JFrame {
                         .addComponent(jButton5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton8)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton9)
+                        .addGap(18, 18, 18)
                         .addComponent(jButton2)
                         .addGap(15, 15, 15))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -340,11 +414,15 @@ public class RestartWindow extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton5)
                     .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(jButton2)
+                    .addComponent(jButton8)
+                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton9))
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -373,24 +451,26 @@ public class RestartWindow extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
- 
-   // Button to stop the application 
+
+    // Button to stop the application 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         jButton5.setEnabled(false);
         Thread t = new Thread(new Runnable() {
             public void run() {
-        try {
-            jTextArea1.setText("Process Begin...\n");
-            RestartWebWorkspace.execute(false,false, true, jTextArea1);        // TODO add your handling code here:
-        } catch (Exception ex) {
-            jTextArea1.setText(ex.toString());
-        }
-            }});
+                try {
+                    
+                    RestartWebWorkspace.execute(false, false, true);        // TODO add your handling code here:
+                } catch (Exception ex) {
+                    jTextArea1.setText(ex.toString());
+                }
+            }
+        });
         t.start();
         try {
             t.join();
         } catch (InterruptedException ex) {
-            Logger.getLogger(RestartWindow.class.getName()).log(Level.SEVERE, null, ex);
+            setTextArea(ex.toString());
+            jButton5.setEnabled(true);
         }
         jButton5.setEnabled(true);
     }//GEN-LAST:event_jButton5ActionPerformed
@@ -401,18 +481,20 @@ public class RestartWindow extends javax.swing.JFrame {
         jButton2.setEnabled(false);
         Thread t = new Thread(new Runnable() {
             public void run() {
-        try {
-            jTextArea1.setText("Process Begin...\n");
-            RestartWebWorkspace.execute(true,true, true, jTextArea1);        // TODO add your handling code here:
-        } catch (Exception ex) {
-            jTextArea1.setText(ex.toString());
-        }
-        }});
+                try {
+                   
+                    RestartWebWorkspace.execute(true, true, true);        // TODO add your handling code here:
+                } catch (Exception ex) {
+                    jTextArea1.setText(ex.toString());
+                }
+            }
+        });
         t.start();
         try {
             t.join();
         } catch (InterruptedException ex) {
-            Logger.getLogger(RestartWindow.class.getName()).log(Level.SEVERE, null, ex);
+            setTextArea(ex.toString());       
+         jButton2.setEnabled(true);
         }
         jButton2.setEnabled(true);
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -420,60 +502,57 @@ public class RestartWindow extends javax.swing.JFrame {
     //Button to start the application
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         jButton1.setEnabled(false);
-        
+
         Thread t = new Thread(new Runnable() {
             public void run() {
-        try {
-            jTextArea1.setText("Process Begin...\n");
-            RestartWebWorkspace.execute(true,false, false, jTextArea1);        // TODO add your handling code here:
-        } catch (Exception ex) {
-            jTextArea1.setText(ex.toString());
-        }
-        }});
+                try {
+                    
+                    RestartWebWorkspace.execute(true, false, false);        // TODO add your handling code here:
+                } catch (Exception ex) {
+                    jTextArea1.setText(ex.toString());
+                }
+            }
+        });
         t.start();
         try {
             t.join();
         } catch (InterruptedException ex) {
-            Logger.getLogger(RestartWindow.class.getName()).log(Level.SEVERE, null, ex);
+            setTextArea(ex.toString());
+            jButton1.setEnabled(true);
         }
         jButton1.setEnabled(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
-        String projectName = jCheckBox1.getText().trim();
+        jButton6.setEnabled(false);
 
-        // Check if the project name is empty
-        if (projectName.isEmpty()) {
-            JOptionPane.showMessageDialog(jDialog1, "Please provide a project name.");
-        } else {
-            // Call the method to save project details with the project name as a prefix
-            saveProjectDetails(projectName);
-            loadProjectNames();
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    
+                     Delete.execute();  
+                     initFields();// TODO add your handling code here:
+                } catch (Exception ex) {
+                    jTextArea1.setText(ex.toString());
+                }
+            }
+        });
+        t.start();
+        try {
+            t.join();
+        } catch (InterruptedException ex) {
+            setTextArea(ex.toString());
+            jButton6.setEnabled(true);
         }
+        jButton6.setEnabled(true);
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
-        // TODO add your handling code here:
-
-        // Get the selected project name from the JComboBox
-        String selectedProject = (String) jComboBox1.getSelectedItem();
-        if (selectedProject != null) {
-            // Load and display details for the selected project
-            if (selectedProject.equals("ADD NEW...")) {
-                jTextField1.setText("");
-                jTextField2.setText("");
-                jTextField3.setText("");
-                
-                jPasswordField1.setText("");
-                jRadioButton1.setSelected(false);
-                //                jButton6.setVisible(true);
-            } else {
-                //                jButton6.setVisible(false);
-                loadProjectDetails(selectedProject);
-
-            }
-
+        initFields();
+        try {
+            putValue("selectedProject",jComboBox1.getSelectedItem().toString());
+        } catch (IOException ex) {
+            
         }
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
@@ -508,6 +587,7 @@ public class RestartWindow extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
+        jButton4.setEnabled(false);
         char s[] = jPasswordField1.getPassword();
         password = "";
         for (char i : s) {
@@ -521,14 +601,75 @@ public class RestartWindow extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(jDialog1, "  **Please provide all the details.\n");
             return;
         }
+
         try {
-            UpdateDetails.execute(jCheckBox1.getText(), jconfig, webworkspace, username, password, autosave);
+            UpdateDetails.execute(jComboBox1.getSelectedItem().toString(), jconfig, webworkspace, username, password, autosave);
             JOptionPane.showMessageDialog(jDialog1, "Update Successful");
+            if (!RestartWebWorkspace.validateSetup()) {
+                Setup.execute(getValue("pathJconfig"), getValue("pathWebWorkspace"), getValue("username"), getValue("password"), getValue("autoLogin"), jTextArea1);
+            }
             initFields();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(jDialog1, "Update unsuccessful");
+            jButton4.setEnabled(true);
         }
+        jButton4.setEnabled(true);
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        // TODO add your handling code here:
+        jButton7.setEnabled(false);
+        RestartWebWorkspace.refreshProjects(projectsList);
+        loadProjectNames();
+        jButton7.setEnabled(true);
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
+        // TODO add your handling code here:
+        jButton8.setEnabled(false);
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    
+                    viewLog();  // TODO add your handling code here:
+                } catch (Exception ex) {
+                    jTextArea1.setText(ex.toString());
+                }
+            }
+        });
+        t.start();
+        try {
+            t.join();
+        } catch (InterruptedException ex) {
+            setTextArea(ex.toString());
+            jButton8.setEnabled(true);
+        }
+        jButton8.setEnabled(true);
+    }//GEN-LAST:event_jButton8ActionPerformed
+
+    private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+        // TODO add your handling code here:
+        jButton9.setEnabled(false);
+
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    
+                    RestartWebWorkspace.execute(false, true, false);        // TODO add your handling code here:
+                } catch (Exception ex) {
+                    setTextArea(ex.toString());
+                }
+            }
+        });
+        t.start();
+//        try {
+//            t.join();
+//        } catch (InterruptedException ex) {
+//            setTextArea(ex.toString());
+//            jButton9.setEnabled(true);
+//        }
+        jButton9.setEnabled(true);
+    }//GEN-LAST:event_jButton9ActionPerformed
 
     /**
      * Save project details to properties file with a project-specific prefix.
@@ -571,7 +712,7 @@ public class RestartWindow extends javax.swing.JFrame {
      * Load project names from properties file and add them to the JComboBox.
      */
     private void loadProjectNames() {
-        projectNames.clear();
+
         Properties p = new Properties();
         String user = System.getProperty("user.name");
         String propPath = "C:/Users/" + user + "/Documents";
@@ -585,16 +726,13 @@ public class RestartWindow extends javax.swing.JFrame {
         }
 
         // Find all project names in the properties file
-        for (Object key : p.keySet()) {
-            String keyStr = (String) key;
-            if (keyStr.endsWith("_pathJconfig")) {
-                String projectName = keyStr.substring(0, keyStr.indexOf("_pathJconfig"));
-                projectNames.add(projectName);
-            }
+        String[] plist = {"Empty"};
+        if (p.getProperty("Projects") != null) {
+            plist = p.getProperty("Projects").split(" , ");
         }
-        projectNames.add("ADD NEW...");
+        projectsList = new HashSet<>(Arrays.asList(plist));
         // Add project names to the JComboBox
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(projectNames.toArray(new String[0])));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(plist));
     }
 
     /**
@@ -620,7 +758,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jTextField1.setText(p.getProperty(prefix + "pathJconfig"));
         jTextField2.setText(p.getProperty(prefix + "pathWebWorkspace"));
         jTextField3.setText(p.getProperty(prefix + "username"));
-        
+
         jPasswordField1.setText(p.getProperty(prefix + "password"));
         jRadioButton1.setSelected(p.getProperty(prefix + "autoLogin", "N").equalsIgnoreCase("Y"));
     }
@@ -664,9 +802,6 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
     }
-    
-    
-    
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -676,8 +811,12 @@ public class RestartWindow extends javax.swing.JFrame {
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButton8;
+    private javax.swing.JButton jButton9;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JDialog jDialog2;
     private javax.swing.JLabel jLabel1;
@@ -686,6 +825,7 @@ public class RestartWindow extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JOptionPane jOptionPane1;
     private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JProgressBar jProgressBar2;
@@ -696,5 +836,5 @@ public class RestartWindow extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     // End of variables declaration//GEN-END:variables
-}
 
+}
