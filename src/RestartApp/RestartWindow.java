@@ -602,6 +602,7 @@ public class RestartWindow extends javax.swing.JFrame {
         autosave = jRadioButton1.isSelected() ? "Y" : "N";
         if (jconfig.length() == 0 || webworkspace.length() == 0 || username.length() == 0 || password.length() == 0) {
             JOptionPane.showMessageDialog(jDialog1, "  **Please provide all the details.\n");
+            jButton4.setEnabled(true);
             return;
         }
 

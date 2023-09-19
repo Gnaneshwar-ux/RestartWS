@@ -30,7 +30,7 @@ public class Setup {
 
 		String propPath = "C:/Users/" + user + "/Documents";
 
-                if(!updateFile(pathJconfig + "/global/xml/" + tempFile)){
+                if(!updateFile(pathJconfig + "/global/xml/" + tempFile, pathWebWorkspace+"\\java\\product\\global\\xml\\"+tempFile)){
                     setTextArea("Update file failed");
                     return;
                 }
@@ -49,15 +49,23 @@ public class Setup {
                
 	}
 
-	public static boolean updateFile(String pathLogin) throws InterruptedException  {
+	public static boolean updateFile(String pathLogin, String altPathLogin) throws InterruptedException  {
 
             try{
 		File file = new File(pathLogin);
 
 		if (!file.exists()) {
-			setTextArea("Login.xml is not found!\n");
-                        return false;
+			setTextArea("Login.xml is not found in project!\n");
+                        
 		}
+                else{
+                file  = new File(altPathLogin);
+                
+                if(file.exists()){
+                    
+                }
+                    
+                    }
 
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line;
