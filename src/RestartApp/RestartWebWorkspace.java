@@ -200,17 +200,17 @@ public class RestartWebWorkspace {
     }
 
     public static List<Map<String, String>> selectProcess(List<Map<String, String>> process) {
-        String[][] rowData = new String[process.size()][4];
+        String[][] rowData = new String[process.size()][3];
 
         for (int i = 0; i < process.size(); i++) {
             rowData[i][0] = i + 1 + "";
-            rowData[i][1] = process.get(i).get("USER");
-            rowData[i][2] = process.get(i).get("TIME");
-            rowData[i][3] = process.get(i).get("PID");
+            //rowData[i][1] = process.get(i).get("USER");
+            rowData[i][1] = process.get(i).get("TIME");
+            rowData[i][2] = process.get(i).get("PID");
         }
 
         //JTable table = new JTable(rowData, new Object[]{"S.NO","USER","TIMESTAMP","PID"});
-        DefaultTableModel tableModel = new DefaultTableModel(rowData, new Object[]{"S.NO", "USER", "TIMESTAMP", "PID"});
+        DefaultTableModel tableModel = new DefaultTableModel(rowData, new Object[]{"S.NO", "TIMESTAMP", "PID"});
         JTable table = new JTable(tableModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -228,9 +228,9 @@ public class RestartWebWorkspace {
 
         // Create a JPanel to hold the table
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
-        panel.setPreferredSize(new Dimension(360, 150)); // Set the preferred size
+        panel.setPreferredSize(new Dimension(310, 150)); // Set the preferred size
 
-        int[] columnWidths = {50, 50, 120, 60}; // Widths for each column in pixels
+        int[] columnWidths = {50, 120, 60}; // Widths for each column in pixels
 
         for (int i = 0; i < columnWidths.length; i++) {
             TableColumn column = table.getColumnModel().getColumn(i);
@@ -415,6 +415,7 @@ public class RestartWebWorkspace {
             }
             setBar(70);
             if (process.waitFor() == 1) {
+                setTextArea("-----BUILD Failed.\n");
                 setBar(100);
                 return;
 
@@ -493,7 +494,8 @@ public class RestartWebWorkspace {
         boolean a = false, b = false, d = false;
         while ((line = br.readLine()) != null) {
             
-            System.out.println(line);
+            //System.out.println(line);
+            
             if (line.startsWith("PID")) {
                 pidLine = line;
                 a = true;
