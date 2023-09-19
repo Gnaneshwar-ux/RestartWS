@@ -49,7 +49,7 @@ public class RestartWindow extends javax.swing.JFrame {
 
     public RestartWindow() {
         initComponents();
-        RestartWebWorkspace.init(jTextArea1, jComboBox1,jComboBox2, jDialog1, jProgressBar2);
+        RestartWebWorkspace.init(jTextArea1, jComboBox1,jComboBox2, jDialog1, jProgressBar2,jButton5,jButton1,jButton9,jButton2, jButton8);
 
         loadProjectNames();
         initFields();
@@ -314,6 +314,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jButton8.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jButton8.setForeground(new java.awt.Color(102, 102, 102));
         jButton8.setText("Open Log");
+        jButton8.setFocusPainted(false);
         jButton8.setMargin(new java.awt.Insets(2, 6, 2, 6));
         jButton8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -329,6 +330,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jButton9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jButton9.setForeground(new java.awt.Color(255, 255, 255));
         jButton9.setText("BUILD");
+        jButton9.setFocusPainted(false);
         jButton9.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton9ActionPerformed(evt);
@@ -466,13 +468,13 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
         t.start();
-        try {
-            t.join();
-        } catch (InterruptedException ex) {
-            setTextArea(ex.toString());
-            jButton5.setEnabled(true);
-        }
-        jButton5.setEnabled(true);
+//        try {
+//            t.join();
+//        } catch (InterruptedException ex) {
+//            setTextArea(ex.toString());
+//            jButton5.setEnabled(true);
+//        }
+        
     }//GEN-LAST:event_jButton5ActionPerformed
 
     //Button to restart the application
@@ -490,13 +492,13 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
         t.start();
-        try {
-            t.join();
-        } catch (InterruptedException ex) {
-            setTextArea(ex.toString());       
-         jButton2.setEnabled(true);
-        }
-        jButton2.setEnabled(true);
+//        try {
+//            t.join();
+//        } catch (InterruptedException ex) {
+//            setTextArea(ex.toString());       
+//         jButton2.setEnabled(true);
+//        }
+        
     }//GEN-LAST:event_jButton2ActionPerformed
 
     //Button to start the application
@@ -514,13 +516,13 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
         t.start();
-        try {
-            t.join();
-        } catch (InterruptedException ex) {
-            setTextArea(ex.toString());
-            jButton1.setEnabled(true);
-        }
-        jButton1.setEnabled(true);
+//        try {
+//            t.join();
+//        } catch (InterruptedException ex) {
+//            setTextArea(ex.toString());
+//            jButton1.setEnabled(true);
+//        }
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
@@ -538,13 +540,13 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
         t.start();
-        try {
-            t.join();
-        } catch (InterruptedException ex) {
-            setTextArea(ex.toString());
-            jButton6.setEnabled(true);
-        }
-        jButton6.setEnabled(true);
+//        try {
+//            t.join();
+//        } catch (InterruptedException ex) {
+//            setTextArea(ex.toString());
+//            jButton6.setEnabled(true);
+//        }
+        
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
@@ -638,13 +640,13 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
         t.start();
-        try {
-            t.join();
-        } catch (InterruptedException ex) {
-            setTextArea(ex.toString());
-            jButton8.setEnabled(true);
-        }
-        jButton8.setEnabled(true);
+//        try {
+//            t.join();
+//        } catch (InterruptedException ex) {
+//            setTextArea(ex.toString());
+//            jButton8.setEnabled(true);
+//        }
+        
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
@@ -668,7 +670,7 @@ public class RestartWindow extends javax.swing.JFrame {
 //            setTextArea(ex.toString());
 //            jButton9.setEnabled(true);
 //        }
-        jButton9.setEnabled(true);
+        
     }//GEN-LAST:event_jButton9ActionPerformed
 
     /**

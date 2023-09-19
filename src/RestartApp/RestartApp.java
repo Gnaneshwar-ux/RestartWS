@@ -27,8 +27,9 @@ public class RestartApp {
          String propPath = "C:/Users/"+user+"/Documents";
         File file = new File(propPath+"/cred.properties");
         
-        new RestartWindow().setVisible(true);
-        
+        RestartWindow rw = new RestartWindow();
+        rw.setResizable(false);
+        rw.setVisible(true);
 //        if (!file.exists()) {
 //            b=false;
 //        }

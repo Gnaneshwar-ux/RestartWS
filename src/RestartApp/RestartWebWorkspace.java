@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.io.*;
+import static java.lang.System.exit;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,6 +15,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -37,8 +39,13 @@ public class RestartWebWorkspace {
     static javax.swing.JComboBox buildbox;
     static javax.swing.JDialog jDialog1;
     static JProgressBar bar;
+    static JButton buttonBuild;
+    static JButton buttonRestart;
+    static JButton buttonStart;
+    static JButton buttonStop;
+    static JButton buttonLog;
 
-    public static void init(javax.swing.JTextArea textA, javax.swing.JComboBox boxA, javax.swing.JComboBox boxB, javax.swing.JDialog jDialog, JProgressBar bar1) {
+    public static void init(javax.swing.JTextArea textA, javax.swing.JComboBox boxA, javax.swing.JComboBox boxB, javax.swing.JDialog jDialog, JProgressBar bar1, JButton b5, JButton b1, JButton b9, JButton b2, JButton b8) {
         send = textA;
         combobox = boxA;
         buildbox = boxB;
@@ -46,6 +53,11 @@ public class RestartWebWorkspace {
         propPath = "C:/Users/" + user + "/Documents";
         jDialog1 = jDialog;
         bar = bar1;
+        buttonStop = b5;
+        buttonStart = b1;
+        buttonBuild = b9;
+        buttonRestart = b2;
+        buttonLog = b8;
     }
 
     public static void execute(boolean start, boolean build, boolean stop) throws Exception {
@@ -55,108 +67,134 @@ public class RestartWebWorkspace {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
                     JOptionPane.showMessageDialog(jDialog1, "Please setup the application with proper details.", "Warning", JOptionPane.WARNING_MESSAGE);
+                    buttonStop.setEnabled(true);
+                    buttonBuild.setEnabled(true);
+                    buttonStart.setEnabled(true);
+                    buttonRestart.setEnabled(true);
                 }
             });
             return;
         }
-        
+
         if (stop) {
             clear();
             setBar(0);
             loadProcessMap();
             setBar(40);
             setTextArea("STOP Process Begin...\n");
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    try {
-                        stopProject(combobox.getSelectedItem().toString());
-                    } catch (IOException ex) {
-                        setTextArea("Failed with IOException");
-                    }
-                }
-            });
-            return;
+//            SwingUtilities.invokeLater(new Runnable() {
+//                public void run() {
+//                    try {
+                        if(!stopProject(combobox.getSelectedItem().toString())){
+                            buttonStop.setEnabled(true);
+                            buttonRestart.setEnabled(true);
+                            return;
+                        }
+                        buttonStop.setEnabled(true);
+//                    } catch (IOException ex) {
+//                        setTextArea("Failed with IOException");
+//                        buttonStop.setEnabled(true);
+//                    }
+//                }
+//            });
+            
         }
         if (build) {
-            if(!stop)clear();
+            if (!stop) {
+                clear();
+            }
             setBar(0);
             setTextArea("BUILD Process Begin...\n");
             build();
+            buttonBuild.setEnabled(true);
         }
         if (start) {
-            if(!build)clear();
+            if (!build) {
+                clear();
+            }
             setTextArea("Start Process Begin...\n");
             setBar(0);
             start();
+            buttonStart.setEnabled(true);
         }
+        buttonRestart.setEnabled(true);
     }
-    
-    public static void viewLog() throws IOException{
-        
+
+    public static void viewLog() throws IOException {
+
         SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-        List<Map<String, String>> l = getRunningProcessList(combobox.getSelectedItem().toString(),false);
-        
-        
-                    l = selectProcess(l);
-                       
-        String user = System.getProperty("user.name");
-        String pathLog = "C:\\Users\\" + user + "\\AppData\\Local\\Temp\\OracleNMS\\";
-        if(l==null || l.isEmpty()){
-            
-            return;
-        }
-        
-        setTextArea(l.get(0).get("FILE"));
-        
-        String[] command = {"cmd", "/c", "notepad", pathLog+l.get(0).get("FILE")};
+            public void run() {
+                List<Map<String, String>> l = getRunningProcessList(combobox.getSelectedItem().toString(), false);
 
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-try {
-        Process process = processBuilder.start();
-        
-        
-            
-        } catch (Exception ex) {
-            setTextArea("Exception while opening log");
-        }
-         }
-            });
+                l = selectProcess(l);
+
+                String user = System.getProperty("user.name");
+                String pathLog = "C:\\Users\\" + user + "\\AppData\\Local\\Temp\\OracleNMS\\";
+                if (l == null || l.isEmpty()) {
+                    buttonLog.setEnabled(true);
+                    return;
+                }
+
+                setTextArea(l.get(0).get("FILE"));
+
+                String[] command = {"cmd", "/c", "notepad", pathLog + l.get(0).get("FILE")};
+
+                ProcessBuilder processBuilder = new ProcessBuilder(command);
+                try {
+                    Process process = processBuilder.start();
+
+                } catch (Exception ex) {
+                    setTextArea("Exception while opening log");
+                    buttonLog.setEnabled(true);
+                }
+                buttonLog.setEnabled(true);
+            }
+        });
 
     }
 
-    public static void stopProject(String project) throws IOException {
-        List<Map<String, String>> processList = getRunningProcessList(project,true);
-        
+    public static boolean stopProject(String project) throws IOException {
+        List<Map<String, String>> processList = getRunningProcessList(project, true);
+
         setBar(60);
 
-        if (processList.isEmpty()) {
+        if (processList == null || processList.isEmpty()) {
             setTextArea("No running processes found. - " + project);
             setBar(100);
-
+            return true;
         } else {
             if (processList.size() == 1) {
                 try {
                     stop(processList.get(0).get("PID"));
                     setTextArea("Successfully stoped process - " + processList.get(0).get("PID"));
                     setBar(100);
+                    return true;
                 } catch (InterruptedException ex) {
                     setTextArea("Failed to stop process - " + processList.get(0).get("PID"));
                     setBar(100);
+                    return true;
                 }
             } else {
                 processList = selectProcess(processList);
+                if (processList == null) {
+                    setTextArea("No processes selected. - " + project);
+                    setBar(100);
+                    
+                    return false;
+                }
                 for (Map<String, String> process : processList) {
                     try {
                         stop(process.get("PID"));
                         setTextArea("Successfully stoped process - " + process.get("PID"));
+                        
                     } catch (InterruptedException ex) {
                         setTextArea("Failed to stop process - " + process.get("PID"));
                         setBar(100);
+                        return true;
                     }
                 }
-                
                 setBar(100);
+                return true;
             }
         }
     }
@@ -303,7 +341,7 @@ try {
         String path = "";
         setBar(10);
         if (getValue("pathWebWorkspace") == null || getValue("pathWebWorkspace").equals("")) {
-            
+
             setTextArea("\nError*** WebWorkspace.exe path not valid.\n");
             setBar(100);
             return;
@@ -314,18 +352,16 @@ try {
         }
         String commandArray1[] = {"cmd.exe", "/c ", "WebWorkspace.exe"};
         try {
-            File f = new File(path+"/WebWorkspace.exe");
-            if(!f.exists()){
+            File f = new File(path + "/WebWorkspace.exe");
+            if (!f.exists()) {
                 setTextArea("workspace path is incorrect.\n");
                 setBar(100);
                 return;
             }
             Process process = Runtime.getRuntime().exec(commandArray1, null, new File(path));
-            
-            
+
             setTextArea("WINDOW OPEN DONE\n");
             setBar(100);
-            
 
         } catch (IOException e) {
 
@@ -351,17 +387,16 @@ try {
         }
 
         try {
-            
+
             String type = "";
-            
-            if(buildbox.getSelectedItem().toString().equals("Ant config")){
+
+            if (buildbox.getSelectedItem().toString().equals("Ant config")) {
                 type = "ant config";
-            }
-            else{
+            } else {
                 type = "ant clean config";
             }
 
-            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", type+" && exit 0 || exit 1");
+            ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", type + " && exit 0 || exit 1");
             builder.directory(new File(path));
             // start the process
             Process process = builder.start();
@@ -371,8 +406,8 @@ try {
 
             String s = null;
             String result = "";
-            setTextArea("Build running... ("+type+")" + "\n");
-            
+            setTextArea("Build running... (" + type + ")" + "\n");
+
             setBar(50);
             while ((s = stdInput.readLine()) != null) {
                 result += s + "\n";
@@ -452,11 +487,13 @@ try {
         BufferedReader br = new BufferedReader(fr);
         String pidLine = "";
         String projectLine = "";
-        
+
         String username = "";
         String line;
-        boolean a = false, b = false,  d = true;
+        boolean a = false, b = false, d = false;
         while ((line = br.readLine()) != null) {
+            
+            System.out.println(line);
             if (line.startsWith("PID")) {
                 pidLine = line;
                 a = true;
@@ -465,8 +502,9 @@ try {
                 projectLine = line;
                 b = true;
             }
-            
+
             if (line.startsWith("USERNAME")) {
+                
                 username = line;
                 d = true;
             }
@@ -481,7 +519,7 @@ try {
         String time;
         long lastModifiedTimestamp = file.lastModified();
         Date lastModifiedDate = new Date(lastModifiedTimestamp);
-        
+
         SimpleDateFormat outputDateFormat = new SimpleDateFormat("hh:mm a dd-MM-yyyy");
         time = outputDateFormat.format(lastModifiedDate).replaceAll("am", "AM").replaceAll("pm", "PM");
 
@@ -574,7 +612,7 @@ try {
 
     public static void putValue(String name, String value) throws IOException {
 
-        if (!(name.equals("Projects")||name.equals("selectedProject")) ) {
+        if (!(name.equals("Projects") || name.equals("selectedProject"))) {
             name = combobox.getSelectedItem().toString() + "_" + name;
         }
 
@@ -597,10 +635,10 @@ try {
         p.store(fileWriter, "user credentials for NMS");
         fileWriter.close();
     }
-    
+
     public static void removeValue(String name) throws IOException {
 
-        if (!(name.equals("Projects")||name.equals("selectedProject")) ) {
+        if (!(name.equals("Projects") || name.equals("selectedProject"))) {
             name = combobox.getSelectedItem().toString() + "_" + name;
         }
 
@@ -639,13 +677,13 @@ try {
             }
         }); // Handle any exceptions that may occur
     }
-    
-    public static void setBar(int i){
+
+    public static void setBar(int i) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 bar.setValue(i);
             }
-        }); 
+        });
     }
 }
