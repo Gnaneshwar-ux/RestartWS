@@ -624,6 +624,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jButton7.setEnabled(false);
         RestartWebWorkspace.refreshProjects(projectsList);
         loadProjectNames();
+        initFields();
         jButton7.setEnabled(true);
     }//GEN-LAST:event_jButton7ActionPerformed
 

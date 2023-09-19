@@ -210,7 +210,7 @@ public class RestartWebWorkspace {
         }
 
         //JTable table = new JTable(rowData, new Object[]{"S.NO","USER","TIMESTAMP","PID"});
-        DefaultTableModel tableModel = new DefaultTableModel(rowData, new Object[]{"S.NO", "TIMESTAMP", "PID"});
+        DefaultTableModel tableModel = new DefaultTableModel(rowData, new Object[]{"S.NO", "MODIFIED TIME", "PID"});
         JTable table = new JTable(tableModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -220,7 +220,7 @@ public class RestartWebWorkspace {
 
         JPanel panel = new JPanel(new BorderLayout());
 
-        JLabel label = new JLabel("-Multiple applications found running. Select one or more-");
+        JLabel label = new JLabel("-Multiple applications found running.-\n Select one or more.");
         label.setHorizontalAlignment(JLabel.LEFT);
         label.setFont(new Font("Arial", Font.PLAIN, 14));
         label.setBorder(new EmptyBorder(0, 0, 5, 0));
@@ -228,7 +228,7 @@ public class RestartWebWorkspace {
 
         // Create a JPanel to hold the table
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
-        panel.setPreferredSize(new Dimension(310, 150)); // Set the preferred size
+        panel.setPreferredSize(new Dimension(360, 150)); // Set the preferred size
 
         int[] columnWidths = {50, 120, 60}; // Widths for each column in pixels
 
