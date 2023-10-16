@@ -297,6 +297,9 @@ public class RestartWebWorkspace {
     }
 
     public static List<Map<String, String>> getRunningProcessList(String project, boolean running) {
+        
+        
+        
         File logs[] = getLogFiles("WebWorkspace");
         List<Map<String, String>> projects = new ArrayList<>();
 

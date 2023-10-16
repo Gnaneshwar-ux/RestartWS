@@ -4,7 +4,6 @@
  */
 package RestartApp;
 
-
 import static RestartApp.RestartWebWorkspace.*;
 import java.awt.Toolkit;
 import java.io.BufferedReader;
@@ -49,7 +48,7 @@ public class RestartWindow extends javax.swing.JFrame {
 
     public RestartWindow() {
         initComponents();
-        RestartWebWorkspace.init(jTextArea1, jComboBox1,jComboBox2, jDialog1, jProgressBar2,jButton5,jButton1,jButton9,jButton2, jButton8);
+        RestartWebWorkspace.init(jTextArea1, jComboBox1, jComboBox2, jDialog1, jProgressBar2, jButton5, jButton1, jButton9, jButton2, jButton8);
 
         loadProjectNames();
         initFields();
@@ -64,7 +63,7 @@ public class RestartWindow extends javax.swing.JFrame {
             jTextField3.setText(getValue("username"));
             jPasswordField1.setText(getValue("password"));
             jRadioButton1.setSelected(getValue("autoLogin") != null ? getValue("autoLogin").toUpperCase().equals("Y") : false);
-            putValue("selectedProject",jComboBox1.getSelectedItem().toString());
+            putValue("selectedProject", jComboBox1.getSelectedItem().toString());
             if (RestartWebWorkspace.validate() && RestartWebWorkspace.validateSetup()) {
                 jButton4.setText("Update");
                 isSetuped = true;
@@ -461,7 +460,7 @@ public class RestartWindow extends javax.swing.JFrame {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    
+
                     RestartWebWorkspace.execute(false, false, true);        // TODO add your handling code here:
                 } catch (Exception ex) {
                     jTextArea1.setText(ex.toString());
@@ -475,7 +474,7 @@ public class RestartWindow extends javax.swing.JFrame {
 //            setTextArea(ex.toString());
 //            jButton5.setEnabled(true);
 //        }
-        
+
     }//GEN-LAST:event_jButton5ActionPerformed
 
     //Button to restart the application
@@ -485,7 +484,7 @@ public class RestartWindow extends javax.swing.JFrame {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                   
+
                     RestartWebWorkspace.execute(true, true, true);        // TODO add your handling code here:
                 } catch (Exception ex) {
                     jTextArea1.setText(ex.toString());
@@ -499,7 +498,7 @@ public class RestartWindow extends javax.swing.JFrame {
 //            setTextArea(ex.toString());       
 //         jButton2.setEnabled(true);
 //        }
-        
+
     }//GEN-LAST:event_jButton2ActionPerformed
 
     //Button to start the application
@@ -509,7 +508,7 @@ public class RestartWindow extends javax.swing.JFrame {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    
+
                     RestartWebWorkspace.execute(true, false, false);        // TODO add your handling code here:
                 } catch (Exception ex) {
                     jTextArea1.setText(ex.toString());
@@ -523,7 +522,7 @@ public class RestartWindow extends javax.swing.JFrame {
 //            setTextArea(ex.toString());
 //            jButton1.setEnabled(true);
 //        }
-        
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
@@ -532,9 +531,9 @@ public class RestartWindow extends javax.swing.JFrame {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    
-                     Delete.execute();  
-                     initFields();// TODO add your handling code here:
+
+                    Delete.execute();
+                    initFields();// TODO add your handling code here:
                 } catch (Exception ex) {
                     jTextArea1.setText(ex.toString());
                 }
@@ -547,15 +546,15 @@ public class RestartWindow extends javax.swing.JFrame {
 //            setTextArea(ex.toString());
 //            jButton6.setEnabled(true);
 //        }
-        
+
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
         initFields();
         try {
-            putValue("selectedProject",jComboBox1.getSelectedItem().toString());
+            putValue("selectedProject", jComboBox1.getSelectedItem().toString());
         } catch (IOException ex) {
-            
+
         }
     }//GEN-LAST:event_jComboBox1ActionPerformed
 
@@ -608,10 +607,19 @@ public class RestartWindow extends javax.swing.JFrame {
 
         try {
             UpdateDetails.execute(jComboBox1.getSelectedItem().toString(), jconfig, webworkspace, username, password, autosave);
-            JOptionPane.showMessageDialog(jDialog1, "Update Successful");
+            
             if (!RestartWebWorkspace.validateSetup()) {
-                Setup.execute(getValue("pathJconfig"), getValue("pathWebWorkspace"), getValue("username"), getValue("password"), getValue("autoLogin"), jTextArea1);
+                int response = JOptionPane.showConfirmDialog(null, "Do you want to proceed with the setup? \n This will include 'AUTO_LOGIN_COMMANDS.inc' in login.xml \nand also adds following custom java command 'LoadCredentialsExternalCommand.java'\n\n You can use delete option to revert changes done by this tool.", "Setup Confirmation", JOptionPane.YES_NO_OPTION);
+                if (response == JOptionPane.YES_OPTION) {
+                    Setup.execute(getValue("pathJconfig"), getValue("pathWebWorkspace"), getValue("username"), getValue("password"), getValue("autoLogin"), jTextArea1);
+                    JOptionPane.showMessageDialog(jDialog1, "Setup Successful");   
+                }
+                
             }
+            else{
+             JOptionPane.showMessageDialog(jDialog1, "Update Successful");   
+            }
+            
             initFields();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(jDialog1, "Update unsuccessful");
@@ -635,7 +643,7 @@ public class RestartWindow extends javax.swing.JFrame {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    
+
                     viewLog();  // TODO add your handling code here:
                 } catch (Exception ex) {
                     jTextArea1.setText(ex.toString());
@@ -649,7 +657,7 @@ public class RestartWindow extends javax.swing.JFrame {
 //            setTextArea(ex.toString());
 //            jButton8.setEnabled(true);
 //        }
-        
+
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
@@ -659,7 +667,7 @@ public class RestartWindow extends javax.swing.JFrame {
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
-                    
+
                     RestartWebWorkspace.execute(false, true, false);        // TODO add your handling code here:
                 } catch (Exception ex) {
                     setTextArea(ex.toString());
@@ -673,7 +681,7 @@ public class RestartWindow extends javax.swing.JFrame {
 //            setTextArea(ex.toString());
 //            jButton9.setEnabled(true);
 //        }
-        
+
     }//GEN-LAST:event_jButton9ActionPerformed
 
     /**
