@@ -611,16 +611,24 @@ public class RestartWindow extends javax.swing.JFrame {
             if (!RestartWebWorkspace.validateSetup()) {
                 int response = JOptionPane.showConfirmDialog(null, "Do you want to proceed with the setup? \n This will include 'AUTO_LOGIN_COMMANDS.inc' in login.xml \nand also adds following custom java command 'LoadCredentialsExternalCommand.java'\n\n You can use delete option to revert changes done by this tool.", "Setup Confirmation", JOptionPane.YES_NO_OPTION);
                 if (response == JOptionPane.YES_OPTION) {
-                    Setup.execute(getValue("pathJconfig"), getValue("pathWebWorkspace"), getValue("username"), getValue("password"), getValue("autoLogin"), jTextArea1);
-                    JOptionPane.showMessageDialog(jDialog1, "Setup Successful");   
+                    boolean b = Setup.execute(getValue("pathJconfig"), getValue("pathWebWorkspace"), getValue("username"), getValue("password"), getValue("autoLogin"), jTextArea1);
+                    initFields();
+                    if(b){
+                    jButton9.doClick();
+                    JOptionPane.showMessageDialog(jDialog1, "Setup Successful - wait for build process to complete"); 
+                    }
+                    else{
+                    JOptionPane.showMessageDialog(jDialog1, "Setup Failed. Please check the details provided.");
+                    }
                 }
                 
             }
             else{
+                initFields();
              JOptionPane.showMessageDialog(jDialog1, "Update Successful");   
             }
             
-            initFields();
+            
         } catch (Exception e) {
             JOptionPane.showMessageDialog(jDialog1, "Update unsuccessful");
             jButton4.setEnabled(true);

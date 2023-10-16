@@ -13,7 +13,7 @@ public class Setup {
 	static String CommandCode = "<Include name=\"AUTO_LOGIN_COMMANDS.inc\"/> \n";
         static javax.swing.JTextArea send;
 
-	public static void execute(String pathJconfig,String pathWebWorkspace,String username,String password,String autoLogin,javax.swing.JTextArea textf ) throws Exception {
+	public static boolean execute(String pathJconfig,String pathWebWorkspace,String username,String password,String autoLogin,javax.swing.JTextArea textf ) throws Exception {
             
             
                 send=textf;
@@ -32,7 +32,7 @@ public class Setup {
 
                 if(!updateFile(pathJconfig + "/global/xml/", pathWebWorkspace+"/java/product/global/xml/"+tempFile)){
                     setTextArea("Update file failed");
-                    return;
+                    return false;
                 }
 
 		Properties prop = new Properties();
@@ -45,7 +45,8 @@ public class Setup {
 		prop.setProperty("username", username);
 		prop.setProperty("password", password);
 		prop.store(credFile, "user credentials for NMS");
-               copyFiles(pathJconfig);
+               return copyFiles(pathJconfig);
+               
                
 	}
 
