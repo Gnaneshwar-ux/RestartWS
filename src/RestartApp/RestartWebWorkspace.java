@@ -6,6 +6,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import static java.lang.System.exit;
 import java.lang.reflect.InvocationTargetException;
@@ -16,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -24,11 +27,14 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 public class RestartWebWorkspace {
 
@@ -200,17 +206,18 @@ public class RestartWebWorkspace {
     }
 
     public static List<Map<String, String>> selectProcess(List<Map<String, String>> process) {
-        String[][] rowData = new String[process.size()][3];
+        String[][] rowData = new String[process.size()][4];
 
         for (int i = 0; i < process.size(); i++) {
             rowData[i][0] = i + 1 + "";
             //rowData[i][1] = process.get(i).get("USER");
-            rowData[i][1] = process.get(i).get("TIME");
-            rowData[i][2] = process.get(i).get("PID");
+            rowData[i][1] = process.get(i).get("LAUNCHER");
+            rowData[i][2] = process.get(i).get("TIME");
+            rowData[i][3] = process.get(i).get("PID");
         }
 
         //JTable table = new JTable(rowData, new Object[]{"S.NO","USER","TIMESTAMP","PID"});
-        DefaultTableModel tableModel = new DefaultTableModel(rowData, new Object[]{"S.NO", "MODIFIED TIME", "PID"});
+        DefaultTableModel tableModel = new DefaultTableModel(rowData, new Object[]{"S.NO","PROCESS", "MODIFIED TIME", "PID"});
         JTable table = new JTable(tableModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -220,22 +227,43 @@ public class RestartWebWorkspace {
 
         JPanel panel = new JPanel(new BorderLayout());
 
-        JLabel label = new JLabel("-Multiple applications found running.-\n Select one or more.");
+        JLabel label = new JLabel("Select from below list.");
         label.setHorizontalAlignment(JLabel.LEFT);
         label.setFont(new Font("Arial", Font.PLAIN, 14));
         label.setBorder(new EmptyBorder(0, 0, 5, 0));
         panel.add(label, BorderLayout.NORTH);
 
+        JCheckBox filterCheckBox = new JCheckBox("Filter local processes.");
+        panel.add(filterCheckBox, BorderLayout.SOUTH);
+        
         // Create a JPanel to hold the table
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
-        panel.setPreferredSize(new Dimension(360, 150)); // Set the preferred size
+        panel.setPreferredSize(new Dimension(380, 150)); // Set the preferred size
 
-        int[] columnWidths = {50, 120, 60}; // Widths for each column in pixels
+        int[] columnWidths = {50,60, 120, 60}; // Widths for each column in pixels
 
         for (int i = 0; i < columnWidths.length; i++) {
             TableColumn column = table.getColumnModel().getColumn(i);
             column.setPreferredWidth(columnWidths[i]);
         }
+        
+        TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(table.getModel());
+        table.setRowSorter(rowSorter);
+        
+        filterCheckBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (filterCheckBox.isSelected()) {
+                    // Enable filtering based on the launcher column (column index 2)
+                    rowSorter.setRowFilter(RowFilter.regexFilter("Local", 1));
+                } else {
+                    // Disable filtering
+                    rowSorter.setRowFilter(null);
+                }
+            }
+        });
+        rowSorter.setRowFilter(RowFilter.regexFilter("Local", 1));
+        filterCheckBox.setSelected(true);
 
         // Show the JOptionPane with the JPanel as the message
         JFrame jf = new JFrame();
@@ -306,7 +334,7 @@ public class RestartWebWorkspace {
         for (File log : logs) {
             try {
                 Map<String, String> mp = parseLog(log);
-                if (mp != null && !mp.isEmpty() && mp.get("PROJECT").equals(project) && (!running || jpsMap.containsKey(mp.get("PID")) && jpsMap.get(mp.get("PID")).equals("JWSLauncher"))) {
+                if (mp != null && !mp.isEmpty() && mp.get("PROJECT").equals(project) && (!running || jpsMap.containsKey(mp.get("PID")))) {
 
                     projects.add(mp);
 
@@ -491,10 +519,11 @@ public class RestartWebWorkspace {
         BufferedReader br = new BufferedReader(fr);
         String pidLine = "";
         String projectLine = "";
+        String launcher = "";
 
         String username = "";
         String line;
-        boolean a = false, b = false, d = false;
+        boolean a = false, b = false, c = false, d = false;
         while ((line = br.readLine()) != null) {
             
             //System.out.println(line);
@@ -513,7 +542,18 @@ public class RestartWebWorkspace {
                 username = line;
                 d = true;
             }
-            if (a && b && d) {
+            
+            if( line.contains("/version.xml")){
+                if(line.contains("AppData") && line.contains(".nms")){
+                    launcher = "JNLP";
+                    c = true;
+                }
+                else{
+                    launcher = "Local";
+                    c = true;
+                }
+            }
+            if (a && b && c && d) {
                 break;
             }
         }
@@ -535,6 +575,7 @@ public class RestartWebWorkspace {
         mp.put("USER", username.equals("") ? "N/A" : username.split("=")[1].trim().replaceAll("\"", ""));
         mp.put("TIME", time);
         mp.put("FILE", file.getName());
+        mp.put("LAUNCHER", launcher);
         return mp;
     }
 

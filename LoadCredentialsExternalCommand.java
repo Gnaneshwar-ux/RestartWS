@@ -22,7 +22,9 @@ public class LoadCredentialsExternalCommand extends JBotCommand{
 		
 		String user = System.getProperty("user.name");
 		
-		String propPath = "C:/Users/"+user+"/Documents";
+		String propPath = "C:/Users/" + user + "/Documents";
+
+		try{
 		
 		FileReader file = new FileReader(propPath+"/cred.properties");
 		Properties p = new Properties();
@@ -41,5 +43,9 @@ public class LoadCredentialsExternalCommand extends JBotCommand{
 		}
 		System.out.println("\nUSERNAME = "+ user+"\n");
 		System.out.println("Credentials loaded .................");
+	}
+	catch (Exception e) {
+		System.out.println("Exception raised in LoadCredentials command");
+	}
 	}
 }
