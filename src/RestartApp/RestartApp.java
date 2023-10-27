@@ -4,7 +4,9 @@
  */
 package RestartApp;
 
+import java.awt.Image;
 import java.io.File;
+import javax.swing.ImageIcon;
 import javax.swing.UIManager;
 
 
@@ -26,6 +28,8 @@ public class RestartApp {
         String user = System.getProperty("user.name");
          String propPath = "C:/Users/"+user+"/Documents";
         File file = new File(propPath+"/cred.properties");
+        
+        
         
         RestartWindow rw = new RestartWindow();
         rw.setResizable(false);

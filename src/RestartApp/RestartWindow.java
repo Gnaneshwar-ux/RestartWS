@@ -21,6 +21,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -49,7 +50,8 @@ public class RestartWindow extends javax.swing.JFrame {
     public RestartWindow() {
         initComponents();
         RestartWebWorkspace.init(jTextArea1, jComboBox1, jComboBox2, jDialog1, jProgressBar2, jButton5, jButton1, jButton9, jButton2, jButton8);
-
+        ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("RestartApp/reboot.png"));
+        this.setIconImage(icon.getImage());
         loadProjectNames();
         initFields();
 
@@ -68,7 +70,7 @@ public class RestartWindow extends javax.swing.JFrame {
                 jButton4.setText("Update");
                 isSetuped = true;
             } else {
-                jButton4.setText("Setup");
+                jButton4.setText("SETUP");
                 isSetuped = false;
             }
         } catch (IOException e) {
@@ -201,7 +203,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jButton6.setBackground(new java.awt.Color(204, 0, 51));
         jButton6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jButton6.setForeground(new java.awt.Color(255, 255, 255));
-        jButton6.setText("Delete");
+        jButton6.setText("DELETE");
         jButton6.setAlignmentX(0.5F);
         jButton6.setFocusPainted(false);
         jButton6.setMargin(new java.awt.Insets(2, 6, 2, 6));
@@ -313,7 +315,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jButton8.setBackground(new java.awt.Color(242, 242, 242));
         jButton8.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jButton8.setForeground(new java.awt.Color(102, 102, 102));
-        jButton8.setText("Open Log");
+        jButton8.setText("OPEN LOG");
         jButton8.setFocusPainted(false);
         jButton8.setMargin(new java.awt.Insets(2, 6, 2, 6));
         jButton8.addActionListener(new java.awt.event.ActionListener() {
