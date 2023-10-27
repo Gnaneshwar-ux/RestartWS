@@ -49,11 +49,15 @@ public class RestartWindow extends javax.swing.JFrame {
 
     public RestartWindow() {
         initComponents();
+         System.out.println("Hello 3");
         RestartWebWorkspace.init(jTextArea1, jComboBox1, jComboBox2, jDialog1, jProgressBar2, jButton5, jButton1, jButton9, jButton2, jButton8);
         ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("RestartApp/reboot.png"));
         this.setIconImage(icon.getImage());
+         System.out.println("Hello 4");
         loadProjectNames();
+         System.out.println("Hello 5");
         initFields();
+         System.out.println("Hello 6");
 
     }
 

@@ -131,6 +131,12 @@ public class RestartWebWorkspace {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 List<Map<String, String>> l = getRunningProcessList(combobox.getSelectedItem().toString(), false);
+                
+                if (l == null || l.isEmpty()) {
+                    setTextArea("No logs found for the project.");
+                    buttonLog.setEnabled(true);
+                    return;
+                }
 
                 l = selectProcess(l);
 
@@ -330,6 +336,10 @@ public class RestartWebWorkspace {
         
         File logs[] = getLogFiles("WebWorkspace");
         List<Map<String, String>> projects = new ArrayList<>();
+        
+        if(logs == null || logs.length ==0){
+            return null;
+        }
 
         for (File log : logs) {
             try {
@@ -351,6 +361,10 @@ public class RestartWebWorkspace {
         clear();
         setTextArea("Reloading projects from logs..");
         File[] files = getLogFiles("");
+        if(files == null || files.length == 0){
+            setTextArea("No projects found in the system.");
+            return;
+        }
         for (File f : files) {
             try {
                 Map<String, String> m = parseLog(f);
@@ -479,8 +493,14 @@ public class RestartWebWorkspace {
     public static File[] getLogFiles(String app) {
         String user = System.getProperty("user.name");
         propPath = "C:/Users/" + user + "/Documents";
-
-        File directory = new File("C:\\Users\\" + user + "\\AppData\\Local\\Temp\\OracleNMS");
+        File directory = null;
+        try{
+         directory = new File("C:\\Users\\" + user + "\\AppData\\Local\\Temp\\OracleNMS");
+        }
+        catch(Exception e){
+            setTextArea(e.toString());
+            
+        }
         File[] logfiles = directory.listFiles((dir, name) -> name.contains(app) && new File(dir, name).isFile());
         long lastModifiedTime = Long.MIN_VALUE;
         File chosenFile = null;

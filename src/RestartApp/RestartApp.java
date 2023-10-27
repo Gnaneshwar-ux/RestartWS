@@ -7,6 +7,7 @@ package RestartApp;
 import java.awt.Image;
 import java.io.File;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 
@@ -25,15 +26,25 @@ public class RestartApp {
        System.setProperty("sun.java2d.uiScale", "1.5");
 
 //        boolean b=true;
+    System.out.println("Hello 1");
         String user = System.getProperty("user.name");
          String propPath = "C:/Users/"+user+"/Documents";
         File file = new File(propPath+"/cred.properties");
+        System.out.println("Hello 2");
         
-        
-        
+        SwingUtilities.invokeLater(new Runnable() {
+    public void run() {
         RestartWindow rw = new RestartWindow();
+        System.out.println("Hello 7");
         rw.setResizable(false);
+        System.out.println("Hello 8");
         rw.setVisible(true);
+        System.out.println("Hello 9");
+// UI-related code goes here
+    }
+});
+        
+        
 //        if (!file.exists()) {
 //            b=false;
 //        }
