@@ -78,7 +78,7 @@ public class RestartWindow extends javax.swing.JFrame {
                 isSetuped = false;
             }
         } catch (IOException e) {
-            setTextArea("Initializing fields exited with exception");
+            setTextArea("Initializing fields exited with exception. ");
         }
     }
 

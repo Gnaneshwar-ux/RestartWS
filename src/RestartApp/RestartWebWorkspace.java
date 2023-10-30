@@ -91,19 +91,19 @@ public class RestartWebWorkspace {
 //            SwingUtilities.invokeLater(new Runnable() {
 //                public void run() {
 //                    try {
-                        if(!stopProject(combobox.getSelectedItem().toString())){
-                            buttonStop.setEnabled(true);
-                            buttonRestart.setEnabled(true);
-                            return;
-                        }
-                        buttonStop.setEnabled(true);
+            if (!stopProject(combobox.getSelectedItem().toString())) {
+                buttonStop.setEnabled(true);
+                buttonRestart.setEnabled(true);
+                return;
+            }
+            buttonStop.setEnabled(true);
 //                    } catch (IOException ex) {
 //                        setTextArea("Failed with IOException");
 //                        buttonStop.setEnabled(true);
 //                    }
 //                }
 //            });
-            
+
         }
         if (build) {
             if (!stop) {
@@ -131,7 +131,7 @@ public class RestartWebWorkspace {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 List<Map<String, String>> l = getRunningProcessList(combobox.getSelectedItem().toString(), false);
-                
+
                 if (l == null || l.isEmpty()) {
                     setTextArea("No logs found for the project.");
                     buttonLog.setEnabled(true);
@@ -191,14 +191,14 @@ public class RestartWebWorkspace {
                 if (processList == null) {
                     setTextArea("No processes selected. - " + project);
                     setBar(100);
-                    
+
                     return false;
                 }
                 for (Map<String, String> process : processList) {
                     try {
                         stop(process.get("PID"));
                         setTextArea("Successfully stoped process - " + process.get("PID"));
-                        
+
                     } catch (InterruptedException ex) {
                         setTextArea("Failed to stop process - " + process.get("PID"));
                         setBar(100);
@@ -223,7 +223,7 @@ public class RestartWebWorkspace {
         }
 
         //JTable table = new JTable(rowData, new Object[]{"S.NO","USER","TIMESTAMP","PID"});
-        DefaultTableModel tableModel = new DefaultTableModel(rowData, new Object[]{"S.NO","PROCESS", "MODIFIED TIME", "PID"});
+        DefaultTableModel tableModel = new DefaultTableModel(rowData, new Object[]{"S.NO", "PROCESS", "MODIFIED TIME", "PID"});
         JTable table = new JTable(tableModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -241,21 +241,21 @@ public class RestartWebWorkspace {
 
         JCheckBox filterCheckBox = new JCheckBox("Filter local processes.");
         panel.add(filterCheckBox, BorderLayout.SOUTH);
-        
+
         // Create a JPanel to hold the table
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
         panel.setPreferredSize(new Dimension(380, 150)); // Set the preferred size
 
-        int[] columnWidths = {50,60, 120, 60}; // Widths for each column in pixels
+        int[] columnWidths = {50, 60, 120, 60}; // Widths for each column in pixels
 
         for (int i = 0; i < columnWidths.length; i++) {
             TableColumn column = table.getColumnModel().getColumn(i);
             column.setPreferredWidth(columnWidths[i]);
         }
-        
+
         TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(table.getModel());
         table.setRowSorter(rowSorter);
-        
+
         filterCheckBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -331,13 +331,11 @@ public class RestartWebWorkspace {
     }
 
     public static List<Map<String, String>> getRunningProcessList(String project, boolean running) {
-        
-        
-        
+
         File logs[] = getLogFiles("WebWorkspace");
         List<Map<String, String>> projects = new ArrayList<>();
-        
-        if(logs == null || logs.length ==0){
+
+        if (logs == null || logs.length == 0) {
             return null;
         }
 
@@ -361,7 +359,7 @@ public class RestartWebWorkspace {
         clear();
         setTextArea("Reloading projects from logs..");
         File[] files = getLogFiles("");
-        if(files == null || files.length == 0){
+        if (files == null || files.length == 0) {
             setTextArea("No projects found in the system.");
             return;
         }
@@ -494,12 +492,11 @@ public class RestartWebWorkspace {
         String user = System.getProperty("user.name");
         propPath = "C:/Users/" + user + "/Documents";
         File directory = null;
-        try{
-         directory = new File("C:\\Users\\" + user + "\\AppData\\Local\\Temp\\OracleNMS");
-        }
-        catch(Exception e){
+        try {
+            directory = new File("C:\\Users\\" + user + "\\AppData\\Local\\Temp\\OracleNMS");
+        } catch (Exception e) {
             setTextArea(e.toString());
-            
+
         }
         File[] logfiles = directory.listFiles((dir, name) -> name.contains(app) && new File(dir, name).isFile());
         long lastModifiedTime = Long.MIN_VALUE;
@@ -545,9 +542,8 @@ public class RestartWebWorkspace {
         String line;
         boolean a = false, b = false, c = false, d = false;
         while ((line = br.readLine()) != null) {
-            
+
             //System.out.println(line);
-            
             if (line.startsWith("PID")) {
                 pidLine = line;
                 a = true;
@@ -558,17 +554,16 @@ public class RestartWebWorkspace {
             }
 
             if (line.startsWith("USERNAME")) {
-                
+
                 username = line;
                 d = true;
             }
-            
-            if( line.contains("/version.xml")){
-                if(line.contains("AppData") && line.contains(".nms")){
+
+            if (line.contains("/version.xml")) {
+                if (line.contains("AppData") && line.contains(".nms")) {
                     launcher = "JNLP";
                     c = true;
-                }
-                else{
+                } else {
                     launcher = "Local";
                     c = true;
                 }
@@ -668,10 +663,26 @@ public class RestartWebWorkspace {
         if (!name.equals("Projects")) {
             name = combobox.getSelectedItem().toString() + "_" + name;
         }
-        FileReader file = new FileReader(propPath + "/cred.properties");
+        
+        String filePath = propPath + "/cred.properties"; // Replace with the full path to your properties file
+
+        File file = new File(filePath);
+        //setTextArea("getvalue method");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                setTextArea("cred.properties file creation failed.");
+                // Handle the exception as needed
+            }
+        }
+        
+        FileReader filer = new FileReader(propPath + "/cred.properties");
+        
+        
         Properties p = new Properties();
-        p.load(file);
-        file.close();
+        p.load(filer);
+        filer.close();
         return p.getProperty(name);
 
     }
@@ -683,6 +694,17 @@ public class RestartWebWorkspace {
         }
 
         String filePath = propPath + "/cred.properties"; // Replace with the full path to your properties file
+
+        File file = new File(filePath);
+        //setTextArea("putvalue method");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                setTextArea("cred.properties file creation failed.");
+                // Handle the exception as needed
+            }
+        }
 
         // Load existing properties from the file
         Properties p = new Properties();

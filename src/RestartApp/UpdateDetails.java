@@ -44,6 +44,7 @@ public class UpdateDetails {
             return true;
         }
         catch(IOException e){
+            
             return false;
         }
     }
