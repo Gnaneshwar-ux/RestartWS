@@ -5,6 +5,7 @@
 package RestartApp;
 
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.io.File;
 import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
@@ -23,23 +24,31 @@ public class RestartApp {
     
     public static void main(String[] args) {
         // TODO code application logic here
-       System.setProperty("sun.java2d.uiScale", "1.5");
+       double scale = Toolkit.getDefaultToolkit().getScreenResolution() / 96.0;
+       
+       System.out.println(scale);
+
+        // Calculate the desired scale factor based on the display ratio
+        double desiredScaleFactor = 1.5*(scale);
+
+        // Set the "sun.java2d.uiScale" property
+        System.setProperty("sun.java2d.uiScale", String.valueOf(desiredScaleFactor));
 
 //        boolean b=true;
-    System.out.println("Hello 1");
+    
         String user = System.getProperty("user.name");
          String propPath = "C:/Users/"+user+"/Documents";
         File file = new File(propPath+"/cred.properties");
-        System.out.println("Hello 2");
+        
         
         SwingUtilities.invokeLater(new Runnable() {
     public void run() {
         RestartWindow rw = new RestartWindow();
-        System.out.println("Hello 7");
-        rw.setResizable(false);
-        System.out.println("Hello 8");
+        
+        //rw.setResizable(false);
+        
         rw.setVisible(true);
-        System.out.println("Hello 9");
+        
 // UI-related code goes here
     }
 });

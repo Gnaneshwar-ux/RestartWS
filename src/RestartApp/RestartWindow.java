@@ -5,6 +5,9 @@
 package RestartApp;
 
 import static RestartApp.RestartWebWorkspace.*;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,6 +30,7 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
 
 /**
@@ -49,16 +53,11 @@ public class RestartWindow extends javax.swing.JFrame {
 
     public RestartWindow() {
         initComponents();
-         System.out.println("Hello 3");
         RestartWebWorkspace.init(jTextArea1, jComboBox1, jComboBox2, jDialog1, jProgressBar2, jButton5, jButton1, jButton9, jButton2, jButton8);
         ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("RestartApp/reboot.png"));
         this.setIconImage(icon.getImage());
-         System.out.println("Hello 4");
         loadProjectNames();
-         System.out.println("Hello 5");
         initFields();
-         System.out.println("Hello 6");
-
     }
 
     public void initFields() {
@@ -96,6 +95,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jProgressBar1 = new javax.swing.JProgressBar();
         jDialog2 = new javax.swing.JDialog();
         jOptionPane1 = new javax.swing.JOptionPane();
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 2), new java.awt.Dimension(0, 2), new java.awt.Dimension(32767, 2));
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
         jButton2 = new javax.swing.JButton();
@@ -121,6 +121,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jButton8 = new javax.swing.JButton();
         jComboBox2 = new javax.swing.JComboBox<>();
         jButton9 = new javax.swing.JButton();
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 30), new java.awt.Dimension(0, 30), new java.awt.Dimension(32767, 30));
 
         jButton3.setText("Restart");
 
@@ -154,9 +155,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jTextArea1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Build Log", javax.swing.border.TitledBorder.LEFT, javax.swing.border.TitledBorder.TOP));
         jScrollPane1.setViewportView(jTextArea1);
 
-        jButton2.setBackground(new java.awt.Color(0, 153, 153));
         jButton2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButton2.setForeground(new java.awt.Color(255, 255, 255));
         jButton2.setText("RESTART");
         jButton2.setToolTipText("Build & Restart");
         jButton2.setFocusPainted(false);
@@ -167,9 +166,8 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
 
-        jButton5.setBackground(new java.awt.Color(204, 0, 0));
         jButton5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButton5.setForeground(new java.awt.Color(255, 255, 255));
+        jButton5.setForeground(new java.awt.Color(255, 0, 51));
         jButton5.setText("STOP");
         jButton5.setFocusPainted(false);
         jButton5.setMargin(new java.awt.Insets(2, 6, 2, 6));
@@ -179,9 +177,7 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
 
-        jButton1.setBackground(new java.awt.Color(0, 153, 0));
         jButton1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("START");
         jButton1.setFocusPainted(false);
         jButton1.setMargin(new java.awt.Insets(2, 6, 2, 6));
@@ -204,9 +200,8 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
 
-        jButton6.setBackground(new java.awt.Color(204, 0, 51));
         jButton6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButton6.setForeground(new java.awt.Color(255, 255, 255));
+        jButton6.setForeground(new java.awt.Color(255, 0, 51));
         jButton6.setText("DELETE");
         jButton6.setAlignmentX(0.5F);
         jButton6.setFocusPainted(false);
@@ -283,9 +278,7 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
 
-        jButton4.setBackground(new java.awt.Color(0, 153, 153));
         jButton4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButton4.setForeground(new java.awt.Color(255, 255, 255));
         jButton4.setText("UPDATE");
         jButton4.setToolTipText("");
         jButton4.setAlignmentX(0.5F);
@@ -304,9 +297,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel6.setText("NMS BUILD AUTOMATION TOOL");
 
-        jButton7.setBackground(new java.awt.Color(102, 102, 102));
         jButton7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButton7.setForeground(new java.awt.Color(255, 255, 255));
         jButton7.setText("Reload");
         jButton7.setAlignmentX(0.5F);
         jButton7.setMargin(new java.awt.Insets(2, 5, 3, 5));
@@ -316,9 +307,7 @@ public class RestartWindow extends javax.swing.JFrame {
             }
         });
 
-        jButton8.setBackground(new java.awt.Color(242, 242, 242));
         jButton8.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButton8.setForeground(new java.awt.Color(102, 102, 102));
         jButton8.setText("OPEN LOG");
         jButton8.setFocusPainted(false);
         jButton8.setMargin(new java.awt.Insets(2, 6, 2, 6));
@@ -332,9 +321,7 @@ public class RestartWindow extends javax.swing.JFrame {
         jComboBox2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Ant config", "Ant clean config" }));
 
-        jButton9.setBackground(new java.awt.Color(153, 204, 0));
         jButton9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jButton9.setForeground(new java.awt.Color(255, 255, 255));
         jButton9.setText("BUILD");
         jButton9.setFocusPainted(false);
         jButton9.addActionListener(new java.awt.event.ActionListener() {
@@ -369,7 +356,7 @@ public class RestartWindow extends javax.swing.JFrame {
                                         .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addComponent(jButton7)))
-                                .addGap(0, 0, Short.MAX_VALUE)))
+                                .addGap(0, 0, 0)))
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addGap(6, 6, 6)
@@ -378,7 +365,7 @@ public class RestartWindow extends javax.swing.JFrame {
                         .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton8)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(22, 22, 22)
                         .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jButton9)
@@ -394,7 +381,7 @@ public class RestartWindow extends javax.swing.JFrame {
                                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 235, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 553, Short.MAX_VALUE)
+                            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addComponent(jButton4)
                                 .addGroup(layout.createSequentialGroup()
@@ -409,14 +396,19 @@ public class RestartWindow extends javax.swing.JFrame {
                                             .addComponent(jCheckBox1))
                                         .addComponent(jRadioButton1)))))
                         .addContainerGap())))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(282, Short.MAX_VALUE)
+                    .addComponent(filler2, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(269, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(jLabel6)
                 .addGap(3, 3, 3)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jProgressBar2, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -450,11 +442,16 @@ public class RestartWindow extends javax.swing.JFrame {
                     .addComponent(jCheckBox1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jRadioButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton4)
                     .addComponent(jButton6))
                 .addGap(10, 10, 10))
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                    .addContainerGap(258, Short.MAX_VALUE)
+                    .addComponent(filler2, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(69, Short.MAX_VALUE)))
         );
 
         pack();
@@ -539,9 +536,11 @@ public class RestartWindow extends javax.swing.JFrame {
                 try {
 
                     Delete.execute();
+                    jButton6.setEnabled(true);
                     initFields();// TODO add your handling code here:
                 } catch (Exception ex) {
                     jTextArea1.setText(ex.toString());
+                    jButton6.setEnabled(true);
                 }
             }
         });
@@ -832,6 +831,8 @@ public class RestartWindow extends javax.swing.JFrame {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.Box.Filler filler1;
+    private javax.swing.Box.Filler filler2;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -864,4 +865,29 @@ public class RestartWindow extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField3;
     // End of variables declaration//GEN-END:variables
 
+}
+
+ class RoundedBorder implements Border {
+
+    private int radius;
+
+
+    RoundedBorder(int radius) {
+        this.radius = radius;
+    }
+
+
+    public Insets getBorderInsets(Component c) {
+        return new Insets(this.radius+1, this.radius+1, this.radius+2, this.radius);
+    }
+
+
+    public boolean isBorderOpaque() {
+        return true;
+    }
+
+
+    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+        g.drawRoundRect(x, y, width-1, height-1, radius, radius);
+    }
 }
